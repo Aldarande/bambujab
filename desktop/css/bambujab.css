@@ -7,7 +7,8 @@
 .jbb-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
 .jbb-model{font-weight:700;font-size:1.05em;letter-spacing:.3px;}
 .jbb-badge{font-size:.78em;font-weight:600;padding:3px 10px;border-radius:999px;color:#fff;}
-.jbb-light{margin-left:8px;font-size:1em;}
+.jbb-light{margin-left:8px;font-size:1em;cursor:pointer;transition:transform .12s,filter .12s;}
+.jbb-light:hover{transform:scale(1.2);filter:drop-shadow(0 0 3px rgba(251,191,36,.6));}
 .jbb-barwrap{height:10px;border-radius:999px;background:rgba(148,163,184,.18);overflow:hidden;margin:10px 0 6px;}
 .jbb-bar{height:100%;border-radius:999px;transition:width .6s ease;}
 .jbb-row{display:flex;justify-content:space-between;font-size:.82em;color:#cbd5e1;margin-bottom:10px;}

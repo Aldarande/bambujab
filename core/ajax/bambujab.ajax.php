@@ -26,6 +26,15 @@ try {
     ajax::success();
   }
 
+  if (init('action') === 'light') {
+    $eqLogic = bambujab::byId(init('id'));
+    if (!is_object($eqLogic)) {
+      throw new Exception(__('Équipement introuvable', __FILE__));
+    }
+    $eqLogic->control(init('state') === 'on' ? 'light_on' : 'light_off');
+    ajax::success();
+  }
+
   if (init('action') === 'status') {
     $eqLogic = bambujab::byId(init('id'));
     if (!is_object($eqLogic)) {

@@ -11,7 +11,7 @@ require_once __DIR__ . '/../../../../core/php/core.inc.php';
 class bambujab extends eqLogic {
 
   const DAEMON_PORT_DEFAULT = 55070;
-  const WIDGET_CSS_VERSION = '050'; // bump pour invalider le cache du CSS widget
+  const WIDGET_CSS_VERSION = '051'; // bump pour invalider le cache du CSS widget
 
   /* Champs de configuration chiffrés automatiquement (access code = secret). */
   public static $_encryptConfigKey = array('access_code');
@@ -677,7 +677,7 @@ class bambujab extends eqLogic {
   <?php } ?>
   <div class="jbb-head">
     <div><span class="jbb-model">🖨 <?php echo htmlspecialchars($model); ?></span>
-      <i class="fas fa-lightbulb jbb-light" style="color:<?php echo $light ? '#fbbf24' : '#475569'; ?>;"></i>
+      <i class="fas fa-lightbulb jbb-light" title="<?php echo __('Allumer / éteindre la lumière', __FILE__); ?>" data-on="<?php echo $light ? '1' : '0'; ?>" style="color:<?php echo $light ? '#fbbf24' : '#475569'; ?>;" onclick="(function(el){var id=<?php echo $id; ?>;var ns=el.getAttribute('data-on')==='1'?0:1;el.setAttribute('data-on',ns);el.style.color=ns?'#fbbf24':'#475569';try{$.ajax({type:'POST',url:'plugins/bambujab/core/ajax/bambujab.ajax.php',data:{action:'light',id:id,state:ns?'on':'off'},dataType:'json'});}catch(e){}})(this);return false;"></i>
       <?php echo $modeBadge; ?><?php echo $hmsBadge; ?></div>
     <span class="jbb-badge" style="background:<?php echo $sc; ?>;"><?php echo htmlspecialchars($state); ?></span>
   </div>
