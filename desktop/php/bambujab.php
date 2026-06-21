@@ -5,6 +5,7 @@ if (!isConnect('admin')) {
 $plugin = plugin::byId('bambujab');
 sendVarToJS('eqType', $plugin->getId());
 $eqLogics = eqLogic::byType($plugin->getId());
+include_file('desktop', 'bambujab', 'css', 'bambujab');
 ?>
 
 <div class="row row-overflow">
@@ -272,9 +273,9 @@ $eqLogics = eqLogic::byType($plugin->getId());
                 <button type="button" class="btn btn-xs btn-default pull-right" id="bjb_btnSnap"><i class="fas fa-sync"></i> {{Rafraîchir}}</button>
                 <label class="pull-right" style="font-weight:normal;margin-right:10px;font-size:.85em;"><input type="checkbox" id="bjb_camAuto"> {{Auto}}</label>
               </legend>
-              <div style="text-align:center;background:#0f172a;border-radius:8px;padding:6px;min-height:120px;">
-                <img id="bjb_camImg" style="max-width:100%;border-radius:6px;display:none;">
-                <div id="bjb_camMsg" class="jbb-muted" style="color:#94a3b8;padding:30px 0;">{{Cliquez sur Rafraîchir pour capturer une image (best-effort, P1/A1).}}</div>
+              <div class="jbb-cam-panel">
+                <img id="bjb_camImg">
+                <div id="bjb_camMsg" class="jbb-cam-msg">{{Cliquez sur Rafraîchir pour capturer une image (best-effort, P1/A1).}}</div>
               </div>
               </div>
 

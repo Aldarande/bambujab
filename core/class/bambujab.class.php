@@ -11,6 +11,7 @@ require_once __DIR__ . '/../../../../core/php/core.inc.php';
 class bambujab extends eqLogic {
 
   const DAEMON_PORT_DEFAULT = 55070;
+  const WIDGET_CSS_VERSION = '050'; // bump pour invalider le cache du CSS widget
 
   /* Champs de configuration chiffrés automatiquement (access code = secret). */
   public static $_encryptConfigKey = array('access_code');
@@ -648,49 +649,19 @@ class bambujab extends eqLogic {
     $hmsBadge = ($hms !== 'Aucune' && $hms !== '')
       ? '<span class="jbb-hms" title="HMS">⚠ ' . htmlspecialchars($hms) . '</span>' : '';
 
+    // CSS externalisé dans desktop/css/bambujab.css. Sur le dashboard, ce fichier
+    // n'est pas chargé automatiquement : on injecte le <link> une seule fois par
+    // rendu (drapeau statique) — un éventuel doublon est dédupliqué par le navigateur.
+    static $cssLinked = false;
+    $cssTag = '';
+    if (!$cssLinked) {
+      $cssTag = '<link rel="stylesheet" href="plugins/bambujab/desktop/css/bambujab.css?v=' . self::WIDGET_CSS_VERSION . '">';
+      $cssLinked = true;
+    }
+
     ob_start(); ?>
 <div class="jbb-card" data-state="<?php echo htmlspecialchars($state); ?>">
-  <style>
-  .jbb-card{position:relative;border-radius:16px;padding:16px 18px;color:#e5e7eb;
-    background:linear-gradient(145deg,rgba(30,41,59,.92),rgba(15,23,42,.96));
-    border:1px solid rgba(148,163,184,.18);box-shadow:0 8px 28px rgba(0,0,0,.35);overflow:hidden;}
-  .jbb-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
-  .jbb-model{font-weight:700;font-size:1.05em;letter-spacing:.3px;}
-  .jbb-badge{font-size:.78em;font-weight:600;padding:3px 10px;border-radius:999px;color:#fff;}
-  .jbb-light{margin-left:8px;font-size:1em;}
-  .jbb-barwrap{height:10px;border-radius:999px;background:rgba(148,163,184,.18);overflow:hidden;margin:10px 0 6px;}
-  .jbb-bar{height:100%;border-radius:999px;transition:width .6s ease;}
-  .jbb-row{display:flex;justify-content:space-between;font-size:.82em;color:#cbd5e1;margin-bottom:10px;}
-  .jbb-temps{display:flex;gap:14px;margin:10px 0;font-size:.86em;}
-  .jbb-temp{flex:1;background:rgba(148,163,184,.08);border-radius:10px;padding:8px 10px;text-align:center;}
-  .jbb-temp b{display:block;font-size:1.15em;color:#f1f5f9;}
-  .jbb-temp small{color:#94a3b8;}
-  .jbb-ams{display:flex;justify-content:space-around;align-items:flex-start;gap:4px;margin-top:10px;width:100%;}
-  .jbb-spool{flex:1 1 0;display:flex;flex-direction:column;align-items:center;gap:4px;min-width:0;}
-  .jbb-spool-num{font-size:.66em;font-weight:700;color:#e2e8f0;background:rgba(148,163,184,.22);
-    width:17px;height:17px;border-radius:50%;display:flex;align-items:center;justify-content:center;line-height:1;}
-  .jbb-spool-disc{width:30px;height:30px;border-radius:50%;border:1px solid rgba(255,255,255,.35);
-    position:relative;box-shadow:0 1px 3px rgba(0,0,0,.4);}
-  .jbb-spool-disc::after{content:'';position:absolute;top:50%;left:50%;width:9px;height:9px;border-radius:50%;
-    background:#0f172a;transform:translate(-50%,-50%);box-shadow:0 0 0 1px rgba(255,255,255,.25);}
-  .jbb-spool-type{font-size:.66em;color:#94a3b8;text-align:center;white-space:nowrap;overflow:hidden;
-    text-overflow:ellipsis;max-width:100%;}
-  .jbb-muted{color:#64748b;font-size:.8em;}
-  .jbb-hms{font-size:.74em;color:#fca5a5;margin-left:8px;}
-  .jbb-stage{font-size:.78em;color:#94a3b8;}
-  .jbb-mode{font-size:.68em;color:#94a3b8;margin-left:8px;padding:2px 7px;border-radius:999px;background:rgba(148,163,184,.12);}
-  .jbb-titlebar{display:flex;align-items:center;justify-content:space-between;margin:-4px -4px 10px;
-    padding-bottom:8px;border-bottom:1px solid rgba(148,163,184,.15);}
-  .jbb-name{color:#f1f5f9;font-weight:700;font-size:1.02em;text-decoration:none;cursor:pointer;}
-  .jbb-name:hover{color:#34d399;text-decoration:none;}
-  .jbb-tools{display:flex;align-items:center;gap:6px;}
-  .jbb-tool{width:28px;height:28px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;
-    color:#cbd5e1;background:rgba(148,163,184,.12);border:1px solid rgba(148,163,184,.18);cursor:pointer;
-    text-decoration:none;transition:all .15s;}
-  .jbb-tool:hover{background:rgba(52,211,153,.2);color:#fff;}
-  .jbb-cam{margin:0 0 12px;border-radius:10px;overflow:hidden;background:#000;text-align:center;}
-  .jbb-cam img{max-width:100%;max-height:240px;width:auto;height:auto;display:block;margin:auto;object-fit:contain;}
-  </style>
+  <?php echo $cssTag; ?>
   <div class="jbb-titlebar">
     <a class="jbb-name" href="index.php?v=d&p=bambujab&m=bambujab&id=<?php echo $id; ?>" title="<?php echo __('Ouvrir la configuration', __FILE__); ?>"><?php echo htmlspecialchars($this->getName()); ?></a>
     <span class="jbb-tools">
