@@ -67,8 +67,7 @@ la nube de Bambu.
 # Apoyo
 
 BambuJab es gratuito y de código abierto (AGPL v3):
-[Ko-fi](https://ko-fi.com/aldarande), [GitHub Sponsors](https://github.com/sponsors/Aldarande),
-[Liberapay](https://liberapay.com/Aldarande/donate). ¡Gracias!
+[Ko-fi](https://ko-fi.com/aldarande), [GitHub Sponsors](https://github.com/sponsors/Aldarande). ¡Gracias!
 
 # Changelog
 

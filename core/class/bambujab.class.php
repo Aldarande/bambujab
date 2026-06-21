@@ -46,6 +46,7 @@ class bambujab extends eqLogic {
       'nozzle_type'       => array('Type de buse',      'string',  '',    'GENERIC_INFO'),
       'hms_severity'      => array('Gravité alerte HMS','string',  '',    'GENERIC_INFO'),
       'hms_messages'      => array('Alertes HMS',       'string',  '',    'GENERIC_INFO'),
+      'camera_on'         => array('Caméra active',     'binary',  '',    'GENERIC_INFO'),
     );
   }
 
@@ -233,6 +234,8 @@ class bambujab extends eqLogic {
       'home'        => array('Home (G28)',         'other',  '', null, null),
       'light_on'    => array('Lumière ON',         'other',  'LIGHT_ON',  null, null),
       'light_off'   => array('Lumière OFF',        'other',  'LIGHT_OFF', null, null),
+      'camera_start'=> array('Caméra ON',          'other',  '', null, null),
+      'camera_stop' => array('Caméra OFF',         'other',  '', null, null),
       'speed'       => array('Régler vitesse (1-4)', 'slider', '', 1, 4),
       'nozzle_temp' => array('Régler buse',          'slider', '', 0, 300),
       'bed_temp'    => array('Régler plateau',       'slider', '', 0, 120),
@@ -496,6 +499,8 @@ class bambujab extends eqLogic {
     $bed      = $this->val('bed_temp', '—');
     $bedT     = $this->val('bed_target', 0);
     $hms      = (string)$this->val('hms_severity', 'Aucune');
+    $cameraOn = (int)$this->val('camera_on', 0);
+    $id       = $this->getId();
 
     // Couleur d'état
     $stateColors = array(
@@ -556,7 +561,28 @@ class bambujab extends eqLogic {
   .jbb-muted{color:#64748b;font-size:.8em;}
   .jbb-hms{font-size:.74em;color:#fca5a5;margin-left:8px;}
   .jbb-stage{font-size:.78em;color:#94a3b8;}
+  .jbb-titlebar{display:flex;align-items:center;justify-content:space-between;margin:-4px -4px 10px;
+    padding-bottom:8px;border-bottom:1px solid rgba(148,163,184,.15);}
+  .jbb-name{color:#f1f5f9;font-weight:700;font-size:1.02em;text-decoration:none;cursor:pointer;}
+  .jbb-name:hover{color:#34d399;text-decoration:none;}
+  .jbb-tools{display:flex;align-items:center;gap:6px;}
+  .jbb-tool{width:28px;height:28px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;
+    color:#cbd5e1;background:rgba(148,163,184,.12);border:1px solid rgba(148,163,184,.18);cursor:pointer;
+    text-decoration:none;transition:all .15s;}
+  .jbb-tool:hover{background:rgba(52,211,153,.2);color:#fff;}
+  .jbb-cam{margin:0 0 12px;border-radius:10px;overflow:hidden;background:#000;text-align:center;}
+  .jbb-cam img{max-width:100%;display:block;margin:auto;}
   </style>
+  <div class="jbb-titlebar">
+    <a class="jbb-name" href="index.php?v=d&p=bambujab&m=bambujab&id=<?php echo $id; ?>" title="<?php echo __('Ouvrir la configuration', __FILE__); ?>"><?php echo htmlspecialchars($this->getName()); ?></a>
+    <span class="jbb-tools">
+      <a class="jbb-tool" href="https://ko-fi.com/aldarande" target="_blank" rel="noopener" title="<?php echo __('Faire un don', __FILE__); ?>"><i class="fas fa-mug-hot"></i></a>
+      <span class="jbb-tool" title="<?php echo __('Rafraîchir', __FILE__); ?>" onclick="jbbRefresh<?php echo $id; ?>()"><i class="fas fa-sync"></i></span>
+    </span>
+  </div>
+  <?php if ($cameraOn === 1) { ?>
+  <div class="jbb-cam"><img id="jbbCam<?php echo $id; ?>" alt="<?php echo __('Caméra', __FILE__); ?>"></div>
+  <?php } ?>
   <div class="jbb-head">
     <div><span class="jbb-model">🖨 <?php echo htmlspecialchars($model); ?></span>
       <i class="fas fa-lightbulb jbb-light" style="color:<?php echo $light ? '#fbbf24' : '#475569'; ?>;"></i>
@@ -574,6 +600,23 @@ class bambujab extends eqLogic {
   </div>
   <div class="jbb-ams"><?php echo $chips; ?></div>
 </div>
+<script>
+function jbbRefresh<?php echo $id; ?>(){
+  try{ $.ajax({type:'POST',url:'plugins/bambujab/core/ajax/bambujab.ajax.php',data:{action:'pushall',id:<?php echo $id; ?>},dataType:'json'}); }catch(e){}
+}
+(function(){
+  window.bjbCam = window.bjbCam || {};
+  if(window.bjbCam[<?php echo $id; ?>]){clearInterval(window.bjbCam[<?php echo $id; ?>]);delete window.bjbCam[<?php echo $id; ?>];}
+<?php if ($cameraOn === 1) { ?>
+  var up=function(){
+    var img=document.getElementById('jbbCam<?php echo $id; ?>');
+    if(!img){clearInterval(window.bjbCam[<?php echo $id; ?>]);return;}
+    img.src='plugins/bambujab/core/php/snapshot.php?id=<?php echo $id; ?>&t='+Date.now();
+  };
+  up(); window.bjbCam[<?php echo $id; ?>]=setInterval(up,2500);
+<?php } ?>
+})();
+</script>
     <?php
     return ob_get_clean();
   }
@@ -588,6 +631,12 @@ class bambujabCmd extends cmd {
 
     if ($logicalId === 'refresh') {
       $eqLogic->sendToDaemon('pushall', array('instance_id' => $eqLogic->getId()));
+      return;
+    }
+
+    // Caméra : active/désactive le flux affiché dans le widget (côté Jeedom)
+    if ($logicalId === 'camera_start' || $logicalId === 'camera_stop') {
+      $eqLogic->checkAndUpdateCmd('camera_on', $logicalId === 'camera_start' ? 1 : 0);
       return;
     }
 

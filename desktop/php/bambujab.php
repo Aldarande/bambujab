@@ -45,11 +45,7 @@ $eqLogics = eqLogic::byType($plugin->getId());
             <div style="display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-bottom:18px;">
               <a href="https://ko-fi.com/aldarande" target="_blank" rel="noopener" class="btn btn-lg" style="background:#FF5E5B;color:#fff;border:none;min-width:140px;"><i class="fas fa-mug-hot"></i> Ko-fi</a>
               <a href="https://github.com/sponsors/Aldarande" target="_blank" rel="noopener" class="btn btn-lg" style="background:#24292e;color:#fff;border:none;min-width:140px;"><i class="fab fa-github"></i> Sponsors</a>
-              <a href="https://liberapay.com/Aldarande/donate" target="_blank" rel="noopener" class="btn btn-lg" style="background:#F6C915;color:#111;border:none;min-width:140px;"><i class="fas fa-hand-holding-heart"></i> Liberapay</a>
             </div>
-            <p style="font-size:0.82em;color:#aaa;text-align:center;margin:0;">
-              {{Ko-fi : don ponctuel &bull; Sponsors : mensuel &bull; Liberapay : récurrent et anonyme possible}}
-            </p>
           </div>
         </div>
       </div>

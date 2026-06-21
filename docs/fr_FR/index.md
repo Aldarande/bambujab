@@ -79,8 +79,7 @@ Le code d'accès est chiffré et n'apparaît jamais dans les logs. Aucune donné
 # Soutien
 
 BambuJab est gratuit et open-source (AGPL v3). Pour soutenir le développement :
-[Ko-fi](https://ko-fi.com/aldarande), [GitHub Sponsors](https://github.com/sponsors/Aldarande),
-[Liberapay](https://liberapay.com/Aldarande/donate). Merci !
+[Ko-fi](https://ko-fi.com/aldarande), [GitHub Sponsors](https://github.com/sponsors/Aldarande). Merci !
 
 # Changelog
 

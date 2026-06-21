@@ -57,7 +57,7 @@
 
 BambuJab est **gratuit et open-source** (AGPL v3), développé bénévolement. Si le plugin vous est utile :
 
-- [☕ Ko-fi](https://ko-fi.com/aldarande) · [💜 GitHub Sponsors](https://github.com/sponsors/Aldarande) · [🤝 Liberapay](https://liberapay.com/Aldarande/donate)
+- [☕ Ko-fi](https://ko-fi.com/aldarande) · [💜 GitHub Sponsors](https://github.com/sponsors/Aldarande)
 
 ## 📜 Licence
 

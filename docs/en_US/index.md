@@ -79,8 +79,7 @@ The access code is encrypted and never appears in logs. No data is sent to the B
 # Support
 
 BambuJab is free and open-source (AGPL v3). To support development:
-[Ko-fi](https://ko-fi.com/aldarande), [GitHub Sponsors](https://github.com/sponsors/Aldarande),
-[Liberapay](https://liberapay.com/Aldarande/donate). Thank you!
+[Ko-fi](https://ko-fi.com/aldarande), [GitHub Sponsors](https://github.com/sponsors/Aldarande). Thank you!
 
 # Changelog
 
