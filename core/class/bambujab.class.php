@@ -618,20 +618,30 @@ class bambujab extends eqLogic {
       $rt = ($h > 0 ? $h . 'h' : '') . sprintf('%02dmin', $m);
     }
 
-    // Slots AMS (chips colorés)
-    $chips = '';
+    // Slots AMS : on collecte d'abord (numéro = unité*4 + slot + 1 ; bobine externe = "Ext")
+    $slots = array();
     foreach ($this->getCmd('info') as $cmd) {
-      if (preg_match('/^(ams_\d+_\d+|vt_tray)_color$/', $cmd->getLogicalId(), $m)) {
-        $color = (string)$cmd->execCmd();
-        if ($color === '' || strtoupper($color) === '#00000000') { continue; }
-        $typeCmd = $this->getCmd('info', $m[1] . '_type');
-        $type = is_object($typeCmd) ? (string)$typeCmd->execCmd() : '';
-        if ($type === '' || $type === 'Vide') { continue; }
-        $label = ($m[1] === 'vt_tray') ? __('Ext', __FILE__) : str_replace('ams_', '', $m[1]);
-        $chips .= '<span class="jbb-chip" title="' . htmlspecialchars($type) . '">'
-                . '<span class="jbb-dot" style="background:' . htmlspecialchars($color) . ';"></span>'
-                . htmlspecialchars($type) . '</span>';
+      $lid = $cmd->getLogicalId();
+      if (preg_match('/^ams_(\d+)_(\d+)_color$/', $lid, $m)) {
+        $slots[] = array('sort' => intval($m[1]) * 4 + intval($m[2]),
+                         'num'  => intval($m[1]) * 4 + intval($m[2]) + 1,
+                         'base' => 'ams_' . $m[1] . '_' . $m[2]);
+      } elseif ($lid === 'vt_tray_color') {
+        $slots[] = array('sort' => 9999, 'num' => __('Ext', __FILE__), 'base' => 'vt_tray');
       }
+    }
+    usort($slots, function ($a, $b) { return $a['sort'] - $b['sort']; });
+
+    $chips = '';
+    foreach ($slots as $s) {
+      $color = (string)$this->val($s['base'] . '_color', '');
+      if ($color === '' || strtoupper($color) === '#00000000') { continue; }
+      $type = (string)$this->val($s['base'] . '_type', '');
+      if ($type === '' || $type === 'Vide') { continue; }
+      $chips .= '<div class="jbb-spool" title="' . htmlspecialchars($type) . '">'
+              . '<span class="jbb-spool-num">' . htmlspecialchars((string)$s['num']) . '</span>'
+              . '<span class="jbb-spool-disc" style="background:' . htmlspecialchars($color) . ';"></span>'
+              . '<span class="jbb-spool-type">' . htmlspecialchars($type) . '</span></div>';
     }
     if ($chips === '') { $chips = '<span class="jbb-muted">' . __('Aucun filament détecté', __FILE__) . '</span>'; }
 
@@ -655,10 +665,16 @@ class bambujab extends eqLogic {
   .jbb-temp{flex:1;background:rgba(148,163,184,.08);border-radius:10px;padding:8px 10px;text-align:center;}
   .jbb-temp b{display:block;font-size:1.15em;color:#f1f5f9;}
   .jbb-temp small{color:#94a3b8;}
-  .jbb-ams{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;}
-  .jbb-chip{display:inline-flex;align-items:center;gap:6px;font-size:.78em;padding:3px 9px;border-radius:999px;
-    background:rgba(148,163,184,.12);border:1px solid rgba(148,163,184,.2);}
-  .jbb-dot{width:11px;height:11px;border-radius:50%;border:1px solid rgba(255,255,255,.35);}
+  .jbb-ams{display:flex;justify-content:space-around;align-items:flex-start;gap:4px;margin-top:10px;width:100%;}
+  .jbb-spool{flex:1 1 0;display:flex;flex-direction:column;align-items:center;gap:4px;min-width:0;}
+  .jbb-spool-num{font-size:.66em;font-weight:700;color:#e2e8f0;background:rgba(148,163,184,.22);
+    width:17px;height:17px;border-radius:50%;display:flex;align-items:center;justify-content:center;line-height:1;}
+  .jbb-spool-disc{width:30px;height:30px;border-radius:50%;border:1px solid rgba(255,255,255,.35);
+    position:relative;box-shadow:0 1px 3px rgba(0,0,0,.4);}
+  .jbb-spool-disc::after{content:'';position:absolute;top:50%;left:50%;width:9px;height:9px;border-radius:50%;
+    background:#0f172a;transform:translate(-50%,-50%);box-shadow:0 0 0 1px rgba(255,255,255,.25);}
+  .jbb-spool-type{font-size:.66em;color:#94a3b8;text-align:center;white-space:nowrap;overflow:hidden;
+    text-overflow:ellipsis;max-width:100%;}
   .jbb-muted{color:#64748b;font-size:.8em;}
   .jbb-hms{font-size:.74em;color:#fca5a5;margin-left:8px;}
   .jbb-stage{font-size:.78em;color:#94a3b8;}
