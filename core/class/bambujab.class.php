@@ -663,10 +663,10 @@ class bambujab extends eqLogic {
     <a class="jbb-name" href="index.php?v=d&p=bambujab&m=bambujab&id=<?php echo $id; ?>" title="<?php echo __('Ouvrir la configuration', __FILE__); ?>"><?php echo htmlspecialchars($this->getName()); ?></a>
     <span class="jbb-tools">
       <?php if ($hasCamera) { ?>
-      <span class="jbb-tool" title="<?php echo __('Caméra (afficher/masquer le flux)', __FILE__); ?>" onclick="jbbCamToggle<?php echo $id; ?>()"><i class="fas fa-video"></i></span>
+      <span class="jbb-tool" title="<?php echo __('Caméra (afficher/masquer le flux)', __FILE__); ?>" onclick="(function(){var id=<?php echo $id; ?>;window.bjbCam=window.bjbCam||{};var w=document.getElementById('jbbCamWrap'+id);var up=function(){var i=document.getElementById('jbbCam'+id);if(i){i.src='plugins/bambujab/core/php/snapshot.php?id='+id+'&t='+Date.now();}};if(window.bjbCam[id]){clearInterval(window.bjbCam[id]);delete window.bjbCam[id];if(w){w.style.display='none';}}else{if(w){w.style.display='block';}up();window.bjbCam[id]=setInterval(up,2500);}})();return false;"><i class="fas fa-video"></i></span>
       <?php } ?>
       <a class="jbb-tool" href="https://ko-fi.com/aldarande" target="_blank" rel="noopener" title="<?php echo __('Faire un don', __FILE__); ?>"><i class="fas fa-mug-hot"></i></a>
-      <span class="jbb-tool" title="<?php echo __('Rafraîchir', __FILE__); ?>" onclick="jbbRefresh<?php echo $id; ?>()"><i class="fas fa-sync"></i></span>
+      <span class="jbb-tool" title="<?php echo __('Rafraîchir', __FILE__); ?>" onclick="(function(){try{$.ajax({type:'POST',url:'plugins/bambujab/core/ajax/bambujab.ajax.php',data:{action:'pushall',id:<?php echo $id; ?>},dataType:'json'});}catch(e){}})();return false;"><i class="fas fa-sync"></i></span>
     </span>
   </div>
   <?php if ($hasCamera) { ?>
@@ -689,33 +689,6 @@ class bambujab extends eqLogic {
   </div>
   <div class="jbb-ams"><?php echo $chips; ?></div>
 </div>
-<script>
-function jbbRefresh<?php echo $id; ?>(){
-  try{ $.ajax({type:'POST',url:'plugins/bambujab/core/ajax/bambujab.ajax.php',data:{action:'pushall',id:<?php echo $id; ?>},dataType:'json'}); }catch(e){}
-}
-window.bjbCam = window.bjbCam || {};
-function jbbCamUp<?php echo $id; ?>(){
-  var img=document.getElementById('jbbCam<?php echo $id; ?>');
-  if(!img){ if(window.bjbCam[<?php echo $id; ?>]){clearInterval(window.bjbCam[<?php echo $id; ?>]);delete window.bjbCam[<?php echo $id; ?>];} return; }
-  img.onerror=function(){ img.alt='{{Caméra indisponible}}'; };
-  img.src='plugins/bambujab/core/php/snapshot.php?id=<?php echo $id; ?>&t='+Date.now();
-}
-function jbbCamStart<?php echo $id; ?>(){
-  var w=document.getElementById('jbbCamWrap<?php echo $id; ?>'); if(w){w.style.display='block';}
-  jbbCamUp<?php echo $id; ?>();
-  if(!window.bjbCam[<?php echo $id; ?>]){ window.bjbCam[<?php echo $id; ?>]=setInterval(jbbCamUp<?php echo $id; ?>,2500); }
-}
-function jbbCamToggle<?php echo $id; ?>(){
-  var w=document.getElementById('jbbCamWrap<?php echo $id; ?>');
-  if(window.bjbCam[<?php echo $id; ?>]){
-    clearInterval(window.bjbCam[<?php echo $id; ?>]); delete window.bjbCam[<?php echo $id; ?>];
-    if(w){w.style.display='none';}
-  } else { jbbCamStart<?php echo $id; ?>(); }
-}
-<?php if ($cameraOn === 1 && $hasCamera) { ?>
-if(!window.bjbCam[<?php echo $id; ?>]){ jbbCamStart<?php echo $id; ?>(); }
-<?php } ?>
-</script>
     <?php
     return ob_get_clean();
   }
