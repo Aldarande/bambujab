@@ -6,8 +6,13 @@ Unterstützte Modelle: **X1 / X1C, P1P / P1S, A1 / A1 mini**.
 
 # Kompatibilität
 
-Erfordert Jeedom **≥ 4.4** und einen BambuLab-Drucker mit aktiviertem **LAN-Modus**
-(am Drucker: *Einstellungen › Netzwerk › LAN-Modus*).
+Erfordert Jeedom **≥ 4.4** und einen BambuLab-Drucker.
+
+> ⚠️ **Wichtig — ein Drucker ist entweder im LAN- oder im Cloud-Modus, nie in beiden.**
+> Ist der **„Nur-LAN-Modus"** am Drucker **aktiviert** (*Einstellungen › Netzwerk*), wird er **von der
+> Cloud getrennt**: nutzen Sie den **LAN**-Modus. Ist er **deaktiviert**, läuft der Drucker über die
+> **Cloud**: nutzen Sie den **Cloud**-Modus. Wählen Sie **einen Modus** pro Drucker — ein Moduswechsel
+> am Drucker nimmt den anderen offline.
 
 # Installation
 

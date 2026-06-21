@@ -7,8 +7,12 @@ Modelos compatibles: **X1 / X1C, P1P / P1S, A1 / A1 mini**.
 
 # Compatibilidad
 
-Requiere Jeedom **≥ 4.4** y una impresora BambuLab con el **Modo LAN activado**
-(en la impresora: *Ajustes › Red › Modo LAN*).
+Requiere Jeedom **≥ 4.4** y una impresora BambuLab.
+
+> ⚠️ **Importante — una impresora está en modo LAN o en modo Cloud, nunca en ambos.**
+> Si el **«Modo solo LAN»** está **activado** en la impresora (*Ajustes › Red*), se **desconecta de la
+> nube**: usa el modo **LAN**. Si lo **desactivas**, la impresora pasa a la **nube**: usa el modo
+> **Cloud**. Elige **un solo modo** por impresora — cambiar el modo en la impresora deja el otro sin conexión.
 
 # Instalación
 

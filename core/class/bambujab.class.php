@@ -515,6 +515,31 @@ class bambujab extends eqLogic {
       }
       $cmd->save();
     }
+
+    // Redémarrage automatique du démon si les paramètres de connexion ont changé
+    // (mode/IP/serial/code/cloud…) ou l'activation. Évite que l'utilisateur doive
+    // relancer le démon à la main après avoir ajouté/modifié une imprimante.
+    // On signe uniquement les champs de connexion : un simple réagencement de
+    // commandes ne déclenche pas de redémarrage.
+    $sig = md5(json_encode(array(
+      $this->getIsEnable(),
+      $this->getConfiguration('conn_mode', 'lan'),
+      $this->getConfiguration('ip', ''),
+      $this->getConfiguration('serial', ''),
+      $this->getConfiguration('access_code', ''),
+      $this->getConfiguration('cloud_token', ''),
+      $this->getConfiguration('cloud_username', ''),
+      $this->getConfiguration('cloud_mqtt_host', ''),
+    )));
+    $cacheKey = 'bambujab::connsig::' . $this->getId();
+    if (cache::byKey($cacheKey)->getValue('') !== $sig) {
+      cache::set($cacheKey, $sig);
+      // Redémarrage différé (après la fin de la requête de sauvegarde)
+      try { self::deamon_start(); }
+      catch (Exception $e) {
+        log::add(__CLASS__, 'warning', 'bambujab.class.php::postSave() — redémarrage démon : ' . $e->getMessage());
+      }
+    }
   }
 
   public function preRemove() {

@@ -57,7 +57,7 @@ def main():
         if not dev.get("ok"):
             _out({"ok": False, "error": dev.get("error", "Jeton invalide")})
             return
-        _out({"ok": True, "token": tok, "username": cloud_api.mqtt_username_from_token(tok),
+        _out({"ok": True, "token": tok, "username": cloud_api.resolve_username(tok, region),
               "mqtt_host": dev.get("mqtt_host", ""), "devices": dev.get("devices", [])})
 
     else:

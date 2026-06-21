@@ -6,8 +6,13 @@ Modèles pris en charge : **X1 / X1C, P1P / P1S, A1 / A1 mini**.
 
 # Compatibilité
 
-Le plugin nécessite Jeedom **≥ 4.4** et une imprimante BambuLab avec le **Mode LAN activé**
-(sur l'imprimante : *Réglages › Réseau › Mode LAN*).
+Le plugin nécessite Jeedom **≥ 4.4** et une imprimante BambuLab.
+
+> ⚠️ **Important — une imprimante est soit en mode LAN, soit en mode Cloud, jamais les deux.**
+> Si le **« Mode LAN seul »** est **activé** sur l'imprimante (*Réglages › Réseau*), elle se
+> **déconnecte du cloud** : utilisez alors le mode **LAN** dans BambuJab. Si vous le **désactivez**,
+> l'imprimante passe sur le **cloud** : utilisez alors le mode **Cloud**. Choisissez **un seul mode**
+> par imprimante (un seul équipement) — changer de mode côté imprimante fait basculer l'autre hors-ligne.
 
 # Installation
 

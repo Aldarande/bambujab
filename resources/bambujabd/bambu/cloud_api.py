@@ -36,7 +36,7 @@ def _headers(token=None):
 
 
 def mqtt_username_from_token(token):
-    """Extrait le claim 'username' (forme 'u_<id>') du JWT d'accès."""
+    """Extrait le claim 'username' (forme 'u_<id>') du JWT d'accès (si JWT)."""
     try:
         payload = token.split(".")[1]
         payload += "=" * (-len(payload) % 4)  # padding base64url
@@ -44,6 +44,22 @@ def mqtt_username_from_token(token):
         return data.get("username") or ""
     except Exception:
         return ""
+
+
+def resolve_username(token, region="global"):
+    """Username MQTT 'u_<uid>'. Le token Bambu n'est pas toujours un JWT : on récupère
+    l'uid via l'API utilisateur (fiable), avec repli sur le claim JWT."""
+    base, _ = _region(region)
+    try:
+        r = requests.get(base + "/v1/design-user-service/my/preference",
+                        headers=_headers(token), timeout=TIMEOUT)
+        if r.ok and r.content:
+            uid = (r.json() or {}).get("uid")
+            if uid:
+                return "u_" + str(uid)
+    except Exception:
+        pass
+    return mqtt_username_from_token(token)
 
 
 def login(email, password, region="global"):
@@ -63,7 +79,7 @@ def login(email, password, region="global"):
     data = r.json() if r.content else {}
     token = data.get("accessToken") or ""
     if token:
-        return {"status": "ok", "token": token, "username": mqtt_username_from_token(token)}
+        return {"status": "ok", "token": token, "username": resolve_username(token, region)}
 
     login_type = (data.get("loginType") or "").lower()
     # Code email requis : on déclenche l'envoi du code
@@ -104,7 +120,7 @@ def login_with_code(email, code, region="global"):
     token = data.get("accessToken") or ""
     if not token:
         return {"status": "error", "error": "Code invalide ou expiré"}
-    return {"status": "ok", "token": token, "username": mqtt_username_from_token(token)}
+    return {"status": "ok", "token": token, "username": resolve_username(token, region)}
 
 
 def list_devices(token, region="global"):

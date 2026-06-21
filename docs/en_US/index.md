@@ -6,8 +6,13 @@ Supported models: **X1 / X1C, P1P / P1S, A1 / A1 mini**.
 
 # Compatibility
 
-Requires Jeedom **≥ 4.4** and a BambuLab printer with **LAN Mode enabled**
-(on the printer: *Settings › Network › LAN Mode*).
+Requires Jeedom **≥ 4.4** and a BambuLab printer.
+
+> ⚠️ **Important — a printer is either in LAN mode or Cloud mode, never both.**
+> If **"LAN Only Mode"** is **enabled** on the printer (*Settings › Network*), it **disconnects from
+> the cloud**: use **LAN** mode in BambuJab. If you **disable** it, the printer goes to the **cloud**:
+> use **Cloud** mode. Pick **one mode** per printer (one equipment) — switching the mode on the
+> printer takes the other one offline.
 
 # Installation
 

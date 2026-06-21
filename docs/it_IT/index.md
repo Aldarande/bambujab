@@ -7,8 +7,13 @@ Modelli supportati: **X1 / X1C, P1P / P1S, A1 / A1 mini**.
 
 # Compatibilità
 
-Richiede Jeedom **≥ 4.4** e una stampante BambuLab con **Modalità LAN attiva**
-(sulla stampante: *Impostazioni › Rete › Modalità LAN*).
+Richiede Jeedom **≥ 4.4** e una stampante BambuLab.
+
+> ⚠️ **Importante — una stampante è in modalità LAN oppure Cloud, mai entrambe.**
+> Se la **«Modalità solo LAN»** è **attiva** sulla stampante (*Impostazioni › Rete*), essa si
+> **disconnette dal cloud**: usa la modalità **LAN**. Se la **disattivi**, la stampante passa al
+> **cloud**: usa la modalità **Cloud**. Scegli **una sola modalità** per stampante — cambiare modalità
+> sulla stampante mette l'altra offline.
 
 # Installazione
 
