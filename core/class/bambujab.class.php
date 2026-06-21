@@ -452,6 +452,19 @@ class bambujab extends eqLogic {
     return $out;
   }
 
+  /** Flux MJPEG continu (multipart) — diffuse les images du port 6000 vers la sortie HTTP.
+   *  Appelé par core/php/stream.php après envoi de l'en-tête multipart. Bloque jusqu'à
+   *  déconnexion du client (passthru -> SIGPIPE sur le process Python). */
+  public function cameraStream() {
+    $python = __DIR__ . '/../../resources/venv/bin/python3';
+    $tool   = __DIR__ . '/../../resources/bambujabd/camera_tool.py';
+    if (!file_exists($python) || !file_exists($tool)) {
+      throw new Exception(__('Dépendances non installées', __FILE__));
+    }
+    $cmd = $this->ftpEnvPrefix() . escapeshellarg($python) . ' ' . escapeshellarg($tool) . ' stream 2>/dev/null';
+    passthru($cmd);
+  }
+
   // -------------------------------------------------------------------------
   // Découverte LAN (appelée par l'AJAX) — exécute le démon en mode --discover
   // -------------------------------------------------------------------------
@@ -666,14 +679,14 @@ class bambujab extends eqLogic {
     <a class="jbb-name" href="index.php?v=d&p=bambujab&m=bambujab&id=<?php echo $id; ?>" title="<?php echo __('Ouvrir la configuration', __FILE__); ?>"><?php echo htmlspecialchars($this->getName()); ?></a>
     <span class="jbb-tools">
       <?php if ($hasCamera) { ?>
-      <span class="jbb-tool" title="<?php echo __('Caméra (afficher/masquer le flux)', __FILE__); ?>" onclick="(function(){var id=<?php echo $id; ?>;window.bjbCam=window.bjbCam||{};var w=document.getElementById('jbbCamWrap'+id);var up=function(){var i=document.getElementById('jbbCam'+id);if(i){i.src='plugins/bambujab/core/php/snapshot.php?id='+id+'&t='+Date.now();}};if(window.bjbCam[id]){clearInterval(window.bjbCam[id]);delete window.bjbCam[id];if(w){w.style.display='none';}}else{if(w){w.style.display='block';}up();window.bjbCam[id]=setInterval(up,2500);}})();return false;"><i class="fas fa-video"></i></span>
+      <span class="jbb-tool" title="<?php echo __('Caméra (afficher/masquer le flux)', __FILE__); ?>" onclick="(function(){var id=<?php echo $id; ?>;var w=document.getElementById('jbbCamWrap'+id);var i=document.getElementById('jbbCam'+id);if(!w||!i){return;}if((i.getAttribute('src')||'').indexOf('stream.php')===-1){w.style.display='block';i.src='plugins/bambujab/core/php/stream.php?id='+id;}else{i.src='';w.style.display='none';}})();return false;"><i class="fas fa-video"></i></span>
       <?php } ?>
       <a class="jbb-tool" href="https://ko-fi.com/aldarande" target="_blank" rel="noopener" title="<?php echo __('Faire un don', __FILE__); ?>"><i class="fas fa-mug-hot"></i></a>
       <span class="jbb-tool" title="<?php echo __('Rafraîchir', __FILE__); ?>" onclick="(function(){try{$.ajax({type:'POST',url:'plugins/bambujab/core/ajax/bambujab.ajax.php',data:{action:'pushall',id:<?php echo $id; ?>},dataType:'json'});}catch(e){}})();return false;"><i class="fas fa-sync"></i></span>
     </span>
   </div>
   <?php if ($hasCamera) { ?>
-  <div class="jbb-cam" id="jbbCamWrap<?php echo $id; ?>" style="display:<?php echo $cameraOn === 1 ? 'block' : 'none'; ?>;"><img id="jbbCam<?php echo $id; ?>" alt="<?php echo __('Caméra', __FILE__); ?>"></div>
+  <div class="jbb-cam" id="jbbCamWrap<?php echo $id; ?>" style="display:<?php echo $cameraOn === 1 ? 'block' : 'none'; ?>;"><img id="jbbCam<?php echo $id; ?>" <?php if ($cameraOn === 1) { echo 'src="plugins/bambujab/core/php/stream.php?id=' . $id . '"'; } ?> alt="<?php echo __('Caméra', __FILE__); ?>"></div>
   <?php } ?>
   <div class="jbb-head">
     <div><span class="jbb-model">🖨 <?php echo htmlspecialchars($model); ?></span>

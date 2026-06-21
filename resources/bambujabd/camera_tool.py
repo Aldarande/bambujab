@@ -15,6 +15,7 @@ import socket
 import ssl
 import struct
 import sys
+import time
 
 CAM_PORT = 6000
 USER = "bblp"
@@ -59,6 +60,41 @@ def grab(ip, access_code, out_path, timeout=8):
             pass
 
 
+def stream(ip, access_code, max_seconds=1800, timeout=10):
+    """Flux MJPEG : connexion persistante, lecture continue des images (~1 fps A1/P1),
+    écrites sur stdout en multipart/x-mixed-replace (boundary=frame). S'arrête quand
+    le client se déconnecte (SIGPIPE) ou après max_seconds."""
+    ctx = ssl._create_unverified_context()
+    raw = socket.create_connection((ip, CAM_PORT), timeout=timeout)
+    sock = ctx.wrap_socket(raw, server_hostname=ip)
+    out = sys.stdout.buffer
+    start = time.time()
+    try:
+        sock.sendall(_auth_packet(access_code))
+        while time.time() - start < max_seconds:
+            header = _recv_exact(sock, 16, timeout)
+            if header is None:
+                break
+            size = struct.unpack("<I", header[0:4])[0]
+            if size <= 0 or size > 8 * 1024 * 1024:
+                break
+            jpeg = _recv_exact(sock, size, timeout)
+            if jpeg is None or jpeg[:2] != b"\xff\xd8":
+                break
+            out.write(b"--frame\r\nContent-Type: image/jpeg\r\nContent-Length: "
+                      + str(size).encode() + b"\r\n\r\n")
+            out.write(jpeg)
+            out.write(b"\r\n")
+            out.flush()
+    except (BrokenPipeError, ConnectionResetError, OSError):
+        pass  # client déconnecté ou flux interrompu
+    finally:
+        try:
+            sock.close()
+        except Exception:
+            pass
+
+
 def _recv_exact(sock, n, timeout):
     sock.settimeout(timeout)
     buf = b""
@@ -76,7 +112,20 @@ def _recv_exact(sock, n, timeout):
 def main():
     ip = os.environ.get("BAMBU_IP", "").strip()
     code = os.environ.get("BAMBU_CODE", "").strip()
-    out = sys.argv[1] if len(sys.argv) > 1 else None
+    arg = sys.argv[1] if len(sys.argv) > 1 else None
+
+    # Mode flux continu (MJPEG sur stdout)
+    if arg == "stream":
+        if not ip or not code:
+            return
+        try:
+            stream(ip, code)
+        except Exception:
+            pass
+        return
+
+    # Mode capture unique : arg = chemin du fichier de sortie
+    out = arg
     if not ip or not code or not out:
         print(json.dumps({"ok": False, "error": "paramètres manquants"}))
         return
