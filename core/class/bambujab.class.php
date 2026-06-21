@@ -660,7 +660,7 @@ class bambujab extends eqLogic {
     text-decoration:none;transition:all .15s;}
   .jbb-tool:hover{background:rgba(52,211,153,.2);color:#fff;}
   .jbb-cam{margin:0 0 12px;border-radius:10px;overflow:hidden;background:#000;text-align:center;}
-  .jbb-cam img{max-width:100%;display:block;margin:auto;}
+  .jbb-cam img{max-width:100%;max-height:240px;width:auto;height:auto;display:block;margin:auto;object-fit:contain;}
   </style>
   <div class="jbb-titlebar">
     <a class="jbb-name" href="index.php?v=d&p=bambujab&m=bambujab&id=<?php echo $id; ?>" title="<?php echo __('Ouvrir la configuration', __FILE__); ?>"><?php echo htmlspecialchars($this->getName()); ?></a>
