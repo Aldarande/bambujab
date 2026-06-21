@@ -46,6 +46,10 @@ class ImplicitFTP_TLS(ftplib.FTP_TLS):
 
 
 def _connect(ip, code):
+    # SECURITY (TLS) : certificat NON vérifié — l'imprimante BambuLab présente un
+    # certificat auto-signé sur son serveur FTPS LAN (port 990). Compromis de
+    # confiance acceptable car connexion locale point-à-point (IP privée). Le mode
+    # Cloud, lui, utilise un certificat valide (vérifié).
     ctx = ssl._create_unverified_context()
     ftp = ImplicitFTP_TLS(context=ctx)
     ftp.connect(host=ip, port=FTP_PORT, timeout=15)

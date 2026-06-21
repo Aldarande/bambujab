@@ -11,7 +11,8 @@ include_file('core', 'authentification', 'php');
 
 log::add('bambujab', 'debug', 'snapshot.php — appel id=' . init('id') . ' connecté=' . (isConnect() ? '1' : '0'));
 
-if (!isConnect()) {
+// Flux/capture caméra = donnée sensible (vie privée) : réservé aux administrateurs.
+if (!isConnect('admin')) {
   http_response_code(401);
   die('401');
 }

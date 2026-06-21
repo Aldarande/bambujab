@@ -35,6 +35,8 @@ def _auth_packet(access_code):
 
 
 def grab(ip, access_code, out_path, timeout=8):
+    # SECURITY (TLS) : certificat NON vérifié — caméra LAN auto-signée (port 6000),
+    # connexion locale point-à-point. Compromis de confiance acceptable en LAN.
     ctx = ssl._create_unverified_context()
     raw = socket.create_connection((ip, CAM_PORT), timeout=timeout)
     sock = ctx.wrap_socket(raw, server_hostname=ip)
@@ -64,6 +66,7 @@ def stream(ip, access_code, max_seconds=600, timeout=10):
     """Flux MJPEG : connexion persistante, lecture continue des images (~1 fps A1/P1),
     écrites sur stdout en multipart/x-mixed-replace (boundary=frame). S'arrête quand
     le client se déconnecte (SIGPIPE) ou après max_seconds."""
+    # SECURITY (TLS) : voir grab() — certificat auto-signé LAN non vérifié (compromis LAN).
     ctx = ssl._create_unverified_context()
     raw = socket.create_connection((ip, CAM_PORT), timeout=timeout)
     sock = ctx.wrap_socket(raw, server_hostname=ip)

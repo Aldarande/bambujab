@@ -80,11 +80,20 @@ class jeedom_com():
     def send_change_immediate(self, change):
         Thread(target=self.__post_change, args=(change,)).start()
 
+    def _auth_headers(self):
+        # SECURITY : apikey Jeedom transmise via header (et non en query string)
+        # pour éviter toute fuite dans des logs d'URL / proxys. On envoie aussi
+        # X-Api-Key car Apache filtre souvent le header Authorization (CGIPassAuth).
+        return {
+            'Authorization': 'apikey ' + self._apikey,
+            'X-Api-Key': self._apikey,
+        }
+
     def __post_change(self, change):
         logging.debug('jeedom.py: send to jeedom: %s', change)
         for i in range(self._retry):
             try:
-                r = requests.post(self._url + '?apikey=' + self._apikey, json=change, timeout=(0.5, 120), verify=False)
+                r = requests.post(self._url, json=change, headers=self._auth_headers(), timeout=(0.5, 120), verify=False)
                 if r.status_code == requests.codes.ok:
                     return True
                 logging.warning('jeedom.py: error on send request to jeedom, return code %s', r.status_code)
@@ -103,7 +112,7 @@ class jeedom_com():
 
     def test(self):
         try:
-            response = requests.get(self._url + '?apikey=' + self._apikey, verify=False)
+            response = requests.get(self._url, headers=self._auth_headers(), verify=False)
             if response.status_code != requests.codes.ok:
                 logging.error('jeedom.py: callback error %s %s. Check Jeedom network configuration page',
                               response.status_code, response.reason)

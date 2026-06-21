@@ -10,7 +10,8 @@
 require_once dirname(__FILE__) . '/../../../../core/php/core.inc.php';
 include_file('core', 'authentification', 'php');
 
-if (!isConnect()) {
+// Flux caméra = donnée sensible (vie privée) : réservé aux administrateurs.
+if (!isConnect('admin')) {
   http_response_code(401);
   die('401');
 }
