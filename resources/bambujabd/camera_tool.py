@@ -60,7 +60,7 @@ def grab(ip, access_code, out_path, timeout=8):
             pass
 
 
-def stream(ip, access_code, max_seconds=1800, timeout=10):
+def stream(ip, access_code, max_seconds=600, timeout=10):
     """Flux MJPEG : connexion persistante, lecture continue des images (~1 fps A1/P1),
     écrites sur stdout en multipart/x-mixed-replace (boundary=frame). S'arrête quand
     le client se déconnecte (SIGPIPE) ou après max_seconds."""

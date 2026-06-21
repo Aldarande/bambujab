@@ -22,6 +22,9 @@ if (!is_object($eqLogic)) {
 }
 
 // Flux long : pas de limite de temps, pas de compression ni de bufferisation.
+// ignore_user_abort(false) : si le client (navigateur) ferme, PHP doit s'arrêter
+// pour que passthru rende la main et que le process Python soit coupé (SIGPIPE).
+ignore_user_abort(false);
 @set_time_limit(0);
 @ini_set('zlib.output_compression', '0');
 @ini_set('output_buffering', '0');
