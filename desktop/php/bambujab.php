@@ -145,52 +145,112 @@ $eqLogics = eqLogic::byType($plugin->getId());
                 </div>
               </div>
 
-              <legend><i class="fas fa-network-wired"></i> {{Connexion LAN}}</legend>
+              <legend><i class="fas fa-plug"></i> {{Connexion}}</legend>
               <div class="form-group">
-                <label class="col-sm-4 control-label">{{Adresse IP}}
-                  <sup><i class="fas fa-question-circle tooltips" title="{{Adresse IP locale de l'imprimante (réseau)}}"></i></sup>
+                <label class="col-sm-4 control-label">{{Mode de connexion}}
+                  <sup><i class="fas fa-question-circle tooltips" title="{{LAN : direct sur le réseau local (vie privée, pilotage complet). Cloud : via le compte BambuLab (accès à distance).}}"></i></sup>
                 </label>
                 <div class="col-sm-6">
-                  <input type="text" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="ip" placeholder="192.168.1.50">
+                  <select class="eqLogicAttr form-control" id="bjb_connMode" data-l1key="configuration" data-l2key="conn_mode">
+                    <option value="lan">{{LAN (réseau local — recommandé)}}</option>
+                    <option value="cloud">{{Cloud (compte BambuLab)}}</option>
+                  </select>
                 </div>
               </div>
-              <div class="form-group">
-                <label class="col-sm-4 control-label">{{Numéro de série}} <small class="text-muted">({{optionnel}})</small>
-                  <sup><i class="fas fa-question-circle tooltips" title="{{Laissez vide pour une détection automatique à la première connexion. Sinon : appli Bambu Handy › Appareil › Device info, ou autocollant de l'imprimante.}}"></i></sup>
-                </label>
-                <div class="col-sm-6">
-                  <input type="text" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="serial" placeholder="{{vide = détection auto}}">
+
+              <!-- ───────── Champs LAN ───────── -->
+              <div id="bjb_lanFields">
+                <div class="form-group">
+                  <label class="col-sm-4 control-label">{{Adresse IP}}
+                    <sup><i class="fas fa-question-circle tooltips" title="{{Adresse IP locale de l'imprimante (réseau)}}"></i></sup>
+                  </label>
+                  <div class="col-sm-6">
+                    <input type="text" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="ip" placeholder="192.168.1.50">
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="col-sm-4 control-label">{{Numéro de série}} <small class="text-muted">({{optionnel}})</small>
+                    <sup><i class="fas fa-question-circle tooltips" title="{{Laissez vide pour une détection automatique. Sinon : appli Bambu Handy › Appareil › Device info, ou autocollant de l'imprimante.}}"></i></sup>
+                  </label>
+                  <div class="col-sm-6">
+                    <input type="text" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="serial" placeholder="{{vide = détection auto}}">
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="col-sm-4 control-label">{{Code d'accès}}
+                    <sup><i class="fas fa-question-circle tooltips" title="{{Access code (Réglages › Réseau › Mode LAN). 8 chiffres.}}"></i></sup>
+                  </label>
+                  <div class="col-sm-6">
+                    <input type="text" class="eqLogicAttr form-control inputPassword" data-l1key="configuration" data-l2key="access_code" placeholder="********">
+                  </div>
+                </div>
+                <div class="alert alert-info" style="margin-top:8px;">
+                  <i class="fas fa-info-circle"></i> {{Le « Mode LAN » doit être activé sur l'imprimante (Réglages › Réseau).}}
                 </div>
               </div>
-              <div class="form-group">
-                <label class="col-sm-4 control-label">{{Code d'accès}}
-                  <sup><i class="fas fa-question-circle tooltips" title="{{Access code (Réglages › Réseau › Mode LAN). 8 chiffres.}}"></i></sup>
-                </label>
-                <div class="col-sm-6">
-                  <input type="text" class="eqLogicAttr form-control inputPassword" data-l1key="configuration" data-l2key="access_code" placeholder="********">
+
+              <!-- ───────── Champs Cloud ───────── -->
+              <div id="bjb_cloudFields" style="display:none;">
+                <div class="form-group">
+                  <label class="col-sm-4 control-label">{{Région}}</label>
+                  <div class="col-sm-6">
+                    <select class="eqLogicAttr form-control" id="bjb_cloudRegion" data-l1key="configuration" data-l2key="cloud_region">
+                      <option value="global">{{International (.com)}}</option>
+                      <option value="china">{{Chine (.cn)}}</option>
+                    </select>
+                  </div>
                 </div>
-              </div>
-              <div class="form-group">
-                <label class="col-sm-4 control-label">{{Modèle}} <small class="text-muted">({{auto}})</small>
-                  <sup><i class="fas fa-question-circle tooltips" title="{{Détecté automatiquement à la connexion d'après le n° de série. Modifiable.}}"></i></sup>
-                </label>
-                <div class="col-sm-6">
-                  <input type="text" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="model" placeholder="{{détecté automatiquement}}">
+                <div class="form-group">
+                  <label class="col-sm-4 control-label">{{Email BambuLab}}</label>
+                  <div class="col-sm-6">
+                    <input type="email" class="eqLogicAttr form-control" id="bjb_cloudEmail" data-l1key="configuration" data-l2key="cloud_email" placeholder="email@exemple.com" autocomplete="off">
+                  </div>
                 </div>
-              </div>
-              <div class="alert alert-info" style="margin-top:8px;">
-                <i class="fas fa-info-circle"></i> {{Le « Mode LAN » doit être activé sur l'imprimante (Réglages › Réseau).}}
+                <div class="form-group">
+                  <label class="col-sm-4 control-label">{{Mot de passe}}</label>
+                  <div class="col-sm-6">
+                    <input type="password" class="form-control" id="bjb_cloudPassword" placeholder="********" autocomplete="off">
+                    <small class="text-muted">{{Le mot de passe n'est pas stocké : seul un jeton d'accès l'est.}}</small>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <div class="col-sm-offset-4 col-sm-6">
+                    <button type="button" class="btn btn-primary" id="bjb_cloudLogin"><i class="fas fa-sign-in-alt"></i> {{Se connecter}}</button>
+                  </div>
+                </div>
+                <div class="form-group" id="bjb_cloudCodeRow" style="display:none;">
+                  <label class="col-sm-4 control-label">{{Code reçu par email}}</label>
+                  <div class="col-sm-6" style="display:flex;gap:8px;">
+                    <input type="text" class="form-control" id="bjb_cloudCode" placeholder="000000" maxlength="8">
+                    <button type="button" class="btn btn-success" id="bjb_cloudVerify"><i class="fas fa-check"></i> {{Valider}}</button>
+                  </div>
+                </div>
+                <div class="form-group" id="bjb_cloudDeviceRow" style="display:none;">
+                  <label class="col-sm-4 control-label">{{Imprimante}}</label>
+                  <div class="col-sm-6">
+                    <select class="form-control" id="bjb_cloudDevice"></select>
+                  </div>
+                </div>
+                <!-- champs cachés persistés -->
+                <input type="hidden" class="eqLogicAttr" id="bjb_cloudToken" data-l1key="configuration" data-l2key="cloud_token">
+                <input type="hidden" class="eqLogicAttr" id="bjb_cloudUsername" data-l1key="configuration" data-l2key="cloud_username">
+                <input type="hidden" class="eqLogicAttr" id="bjb_cloudMqttHost" data-l1key="configuration" data-l2key="cloud_mqtt_host">
+                <div class="alert alert-warning" style="margin-top:8px;">
+                  <i class="fas fa-info-circle"></i> {{En mode Cloud, le pilotage peut être restreint par BambuLab (Bambu Connect) et la caméra/FTPS locale ne sont pas disponibles.}}
+                </div>
               </div>
             </div>
 
             <div class="col-lg-6">
-              <legend><i class="fas fa-video"></i> {{Caméra}}
+              <div id="bjb_camSection">
+              <legend><i class="fas fa-video"></i> {{Caméra}} <small class="text-muted">({{LAN}})</small>
                 <button type="button" class="btn btn-xs btn-default pull-right" id="bjb_btnSnap"><i class="fas fa-sync"></i> {{Rafraîchir}}</button>
                 <label class="pull-right" style="font-weight:normal;margin-right:10px;font-size:.85em;"><input type="checkbox" id="bjb_camAuto"> {{Auto}}</label>
               </legend>
               <div style="text-align:center;background:#0f172a;border-radius:8px;padding:6px;min-height:120px;">
                 <img id="bjb_camImg" style="max-width:100%;border-radius:6px;display:none;">
                 <div id="bjb_camMsg" class="jbb-muted" style="color:#94a3b8;padding:30px 0;">{{Cliquez sur Rafraîchir pour capturer une image (best-effort, P1/A1).}}</div>
+              </div>
               </div>
 
               <legend style="margin-top:14px;"><i class="fas fa-info"></i> {{Informations}}</legend>

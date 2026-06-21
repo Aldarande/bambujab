@@ -26,6 +26,22 @@ try {
     ajax::success();
   }
 
+  if (init('action') === 'cloudLogin') {
+    ajax::success(bambujab::cloudTool('login', array(
+      'BAMBU_EMAIL'    => init('email'),
+      'BAMBU_PASSWORD' => init('password'),
+      'BAMBU_REGION'   => init('region', 'global'),
+    )));
+  }
+
+  if (init('action') === 'cloudVerify') {
+    ajax::success(bambujab::cloudTool('verify', array(
+      'BAMBU_EMAIL'  => init('email'),
+      'BAMBU_CODE'   => init('code'),
+      'BAMBU_REGION' => init('region', 'global'),
+    )));
+  }
+
   if (init('action') === 'listFiles') {
     $eqLogic = bambujab::byId(init('id'));
     if (!is_object($eqLogic)) {

@@ -40,11 +40,17 @@ class BambuMqttClient:
     """Connexion MQTT à une imprimante. `on_report(instance_id, report_dict)` est
     appelé à chaque message d'état reçu."""
 
-    def __init__(self, instance_id, ip, serial, access_code, on_report, on_status=None, on_identify=None):
+    def __init__(self, instance_id, ip, serial, access_code, on_report, on_status=None,
+                 on_identify=None, host=None, port=MQTT_PORT, username=MQTT_USER, tls_insecure=True):
         self.instance_id = instance_id
         self.ip = ip
+        # host de connexion : IP imprimante (LAN) ou broker cloud (us/cn.mqtt.bambulab.com)
+        self.host = host or ip
+        self.port = int(port)
+        self._username = username           # 'bblp' (LAN) ou 'u_<uid>' (cloud)
+        self._tls_insecure = tls_insecure   # True : cert auto-signé LAN ; False : cert valide cloud
         self.serial = (serial or "").strip()
-        self._access_code = access_code
+        self._access_code = access_code     # access code (LAN) ou token cloud
         self.on_report = on_report
         self.on_status = on_status      # callback(instance_id, online_bool)
         self.on_identify = on_identify  # callback(instance_id, serial, model) à la découverte
@@ -82,9 +88,12 @@ class BambuMqttClient:
             mqtt.CallbackAPIVersion.VERSION2,
             client_id="bambujab-%s" % self.instance_id,
         )
-        client.username_pw_set(MQTT_USER, self._access_code)
-        client.tls_set(cert_reqs=ssl.CERT_NONE, tls_version=ssl.PROTOCOL_TLSv1_2)
-        client.tls_insecure_set(True)  # cert auto-signé de l'imprimante (LAN)
+        client.username_pw_set(self._username, self._access_code)
+        if self._tls_insecure:
+            client.tls_set(cert_reqs=ssl.CERT_NONE, tls_version=ssl.PROTOCOL_TLSv1_2)
+            client.tls_insecure_set(True)  # cert auto-signé de l'imprimante (LAN)
+        else:
+            client.tls_set(tls_version=ssl.PROTOCOL_TLSv1_2)  # cert valide (cloud)
         client.on_connect = self._on_connect
         client.on_disconnect = self._on_disconnect
         client.on_message = self._on_message
@@ -94,9 +103,10 @@ class BambuMqttClient:
         while not self._stop:
             try:
                 self._client = self._build_client()
-                LOGGER.info("mqtt_client.py: connexion #%s vers %s (serial=%s, code=%s)",
-                            self.instance_id, self.ip, _mask(self.serial), _mask(self._access_code))
-                self._client.connect(self.ip, MQTT_PORT, keepalive=60)
+                LOGGER.info("mqtt_client.py: connexion #%s vers %s:%s (user=%s, serial=%s, secret=%s)",
+                            self.instance_id, self.host, self.port, self._username,
+                            _mask(self.serial), _mask(self._access_code))
+                self._client.connect(self.host, self.port, keepalive=60)
                 self._client.loop_forever(retry_first_connection=False)
             except Exception as e:
                 self._set_online(False)

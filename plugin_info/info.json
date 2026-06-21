@@ -9,7 +9,7 @@
   "hasDependency": true,
   "hasOwnDeamon": true,
   "maxDependancyInstallTime": 300,
-  "pluginVersion": "0.3.0",
+  "pluginVersion": "0.5.0",
   "documentation": "https://aldarande.github.io/bambujab/#language#/index.html",
   "documentation_beta": "https://aldarande.github.io/bambujab/#language#/beta.html",
   "changelog": "https://aldarande.github.io/bambujab/#language#/index.html#changelog",

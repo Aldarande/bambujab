@@ -124,16 +124,36 @@ class bambujab extends eqLogic {
     $instances = array();
     foreach (eqLogic::byType(__CLASS__) as $eqLogic) {
       if (!$eqLogic->getIsEnable()) { continue; }
-      $ip     = trim((string)$eqLogic->getConfiguration('ip', ''));
-      $serial = trim((string)$eqLogic->getConfiguration('serial', '')); // optionnel (auto-découverte)
-      $code   = trim((string)$eqLogic->getConfiguration('access_code', ''));
-      if ($ip === '' || $code === '') { continue; }
-      $instances[] = array(
-        'id'          => $eqLogic->getId(),
-        'ip'          => $ip,
-        'serial'      => $serial,
-        'access_code' => $code,
-      );
+      $mode   = trim((string)$eqLogic->getConfiguration('conn_mode', 'lan'));
+      $serial = trim((string)$eqLogic->getConfiguration('serial', ''));
+      if ($mode === 'cloud') {
+        // Cloud : token + uid (u_<id>) + broker région ; serial obligatoire (choisi).
+        $token = trim((string)$eqLogic->getConfiguration('cloud_token', ''));
+        $user  = trim((string)$eqLogic->getConfiguration('cloud_username', ''));
+        $host  = trim((string)$eqLogic->getConfiguration('cloud_mqtt_host', ''));
+        if ($token === '' || $user === '' || $host === '' || $serial === '') { continue; }
+        $instances[] = array(
+          'id'       => $eqLogic->getId(),
+          'mode'     => 'cloud',
+          'host'     => $host,
+          'port'     => 8883,
+          'username' => $user,
+          'token'    => $token,
+          'serial'   => $serial,
+        );
+      } else {
+        // LAN : IP + access code ; serial optionnel (auto-découverte).
+        $ip   = trim((string)$eqLogic->getConfiguration('ip', ''));
+        $code = trim((string)$eqLogic->getConfiguration('access_code', ''));
+        if ($ip === '' || $code === '') { continue; }
+        $instances[] = array(
+          'id'          => $eqLogic->getId(),
+          'mode'        => 'lan',
+          'ip'          => $ip,
+          'serial'      => $serial,
+          'access_code' => $code,
+        );
+      }
     }
     return $instances;
   }
@@ -380,6 +400,24 @@ class bambujab extends eqLogic {
     $this->control('project_file', $params);
   }
 
+  /** Exécute l'outil d'auth cloud (login/verify/devices). Secrets passés par env. */
+  public static function cloudTool($action, $env) {
+    $python = __DIR__ . '/../../resources/venv/bin/python3';
+    $tool   = __DIR__ . '/../../resources/bambujabd/cloud_tool.py';
+    if (!file_exists($python) || !file_exists($tool)) {
+      throw new Exception(__('Dépendances non installées', __FILE__));
+    }
+    $prefix = '';
+    foreach ($env as $k => $v) { $prefix .= $k . '=' . escapeshellarg((string)$v) . ' '; }
+    $cmd = $prefix . 'timeout 35 ' . escapeshellarg($python) . ' ' . escapeshellarg($tool)
+         . ' ' . escapeshellarg($action) . ' 2>/dev/null';
+    $data = json_decode(trim((string)shell_exec($cmd)), true);
+    if (!is_array($data)) {
+      throw new Exception(__('Réponse du cloud illisible', __FILE__));
+    }
+    return $data;
+  }
+
   /** Capture une image de la caméra (best-effort P1/A1). Retourne le chemin du JPEG. */
   public function getSnapshot() {
     $python = __DIR__ . '/../../resources/venv/bin/python3';
@@ -501,6 +539,12 @@ class bambujab extends eqLogic {
     $hms      = (string)$this->val('hms_severity', 'Aucune');
     $cameraOn = (int)$this->val('camera_on', 0);
     $id       = $this->getId();
+    $mode     = trim((string)$this->getConfiguration('conn_mode', 'lan'));
+    // La caméra locale (port 6000) n'existe qu'en LAN
+    if ($mode === 'cloud') { $cameraOn = 0; }
+    $modeBadge = ($mode === 'cloud')
+      ? '<span class="jbb-mode" title="Cloud BambuLab">☁ Cloud</span>'
+      : '<span class="jbb-mode" title="Réseau local">🏠 LAN</span>';
 
     // Couleur d'état
     $stateColors = array(
@@ -561,6 +605,7 @@ class bambujab extends eqLogic {
   .jbb-muted{color:#64748b;font-size:.8em;}
   .jbb-hms{font-size:.74em;color:#fca5a5;margin-left:8px;}
   .jbb-stage{font-size:.78em;color:#94a3b8;}
+  .jbb-mode{font-size:.68em;color:#94a3b8;margin-left:8px;padding:2px 7px;border-radius:999px;background:rgba(148,163,184,.12);}
   .jbb-titlebar{display:flex;align-items:center;justify-content:space-between;margin:-4px -4px 10px;
     padding-bottom:8px;border-bottom:1px solid rgba(148,163,184,.15);}
   .jbb-name{color:#f1f5f9;font-weight:700;font-size:1.02em;text-decoration:none;cursor:pointer;}
@@ -586,7 +631,7 @@ class bambujab extends eqLogic {
   <div class="jbb-head">
     <div><span class="jbb-model">🖨 <?php echo htmlspecialchars($model); ?></span>
       <i class="fas fa-lightbulb jbb-light" style="color:<?php echo $light ? '#fbbf24' : '#475569'; ?>;"></i>
-      <?php echo $hmsBadge; ?></div>
+      <?php echo $modeBadge; ?><?php echo $hmsBadge; ?></div>
     <span class="jbb-badge" style="background:<?php echo $sc; ?>;"><?php echo htmlspecialchars($state); ?></span>
   </div>
   <div class="jbb-barwrap"><div class="jbb-bar" style="width:<?php echo max(0, min(100, $progress)); ?>%;background:<?php echo $sc; ?>;"></div></div>

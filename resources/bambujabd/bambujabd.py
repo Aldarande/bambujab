@@ -84,13 +84,28 @@ def start_instances(instances):
         except (KeyError, TypeError, ValueError):
             logging.error("bambujabd.py: instance sans id valide ignorée")
             continue
-        ip = inst.get("ip", "").strip()
-        serial = inst.get("serial", "").strip()  # peut être vide -> découverte auto
-        access_code = inst.get("access_code", "").strip()
-        if not ip or not access_code:
-            logging.warning("bambujabd.py: instance #%s incomplète (ip/access_code requis) — ignorée", iid)
-            continue
-        client = BambuMqttClient(iid, ip, serial, access_code, on_report, on_status, on_identify)
+        mode = (inst.get("mode") or "lan").strip()
+        serial = inst.get("serial", "").strip()  # LAN : peut être vide -> découverte auto
+        # secret = access code (LAN) ou token cloud
+        secret = (inst.get("access_code") or inst.get("token") or "").strip()
+
+        if mode == "cloud":
+            host = inst.get("host", "").strip()       # ex. us.mqtt.bambulab.com
+            username = inst.get("username", "").strip()  # u_<uid>
+            if not host or not username or not secret or not serial:
+                logging.warning("bambujabd.py: instance cloud #%s incomplète (host/username/token/serial) — ignorée", iid)
+                continue
+            client = BambuMqttClient(iid, host, serial, secret, on_report, on_status, on_identify,
+                                     host=host, port=int(inst.get("port", 8883)),
+                                     username=username, tls_insecure=False)
+        else:
+            ip = inst.get("ip", "").strip()
+            if not ip or not secret:
+                logging.warning("bambujabd.py: instance LAN #%s incomplète (ip/access_code requis) — ignorée", iid)
+                continue
+            client = BambuMqttClient(iid, ip, serial, secret, on_report, on_status, on_identify,
+                                     host=ip, port=int(inst.get("port", 8883)),
+                                     username="bblp", tls_insecure=True)
         _clients[iid] = client
         client.start()
     logging.info("bambujabd.py: %d imprimante(s) démarrée(s)", len(_clients))

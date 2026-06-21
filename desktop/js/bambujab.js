@@ -32,6 +32,95 @@ $('#bt_discoverPrinters').off('click').on('click', function () {
   });
 });
 
+/* ───────── Mode de connexion LAN / Cloud ───────── */
+function bjbApplyConnMode() {
+  var mode = $('#bjb_connMode').value() || 'lan';
+  if (mode === 'cloud') {
+    $('#bjb_lanFields').hide(); $('#bjb_cloudFields').show();
+    $('#bjb_camSection').hide(); $('#bjb_btnFiles').hide();
+  } else {
+    $('#bjb_lanFields').show(); $('#bjb_cloudFields').hide();
+    $('#bjb_camSection').show(); $('#bjb_btnFiles').show();
+  }
+}
+$('body').off('change', '#bjb_connMode').on('change', '#bjb_connMode', bjbApplyConnMode);
+// Appliqué aussi après le rendu de l'équipement
+$('body').off('click.bjbmode', '.li_eqLogic, #bt_addBambuJab').on('click.bjbmode', '.li_eqLogic, #bt_addBambuJab', function () {
+  setTimeout(bjbApplyConnMode, 300);
+});
+
+function bjbCloudEnv() {
+  return {
+    email: $('#bjb_cloudEmail').value(),
+    password: $('#bjb_cloudPassword').val(),
+    code: $('#bjb_cloudCode').val(),
+    region: $('#bjb_cloudRegion').value()
+  };
+}
+function bjbCloudFill(data) {
+  // Remplit le sélecteur d'imprimantes et stocke le jeton
+  $('#bjb_cloudToken').value(data.token || '');
+  $('#bjb_cloudUsername').value(data.username || '');
+  $('#bjb_cloudMqttHost').value(data.mqtt_host || '');
+  var sel = $('#bjb_cloudDevice'); sel.empty();
+  (data.devices || []).forEach(function (d) {
+    sel.append('<option value="' + d.serial + '" data-model="' + (d.model || '') + '" data-code="' + (d.access_code || '') + '">'
+      + (d.name || d.serial) + ' — ' + (d.model || '?') + (d.online ? '' : ' ({{hors ligne}})') + '</option>');
+  });
+  $('#bjb_cloudDeviceRow').show();
+  bjbCloudPickDevice();
+}
+function bjbCloudPickDevice() {
+  var opt = $('#bjb_cloudDevice option:selected');
+  $('.eqLogicAttr[data-l2key=serial]').value(opt.val() || '');
+  $('.eqLogicAttr[data-l2key=access_code]').value(opt.attr('data-code') || '');
+  $('.eqLogicAttr[data-l2key=model]').value(opt.attr('data-model') || '');
+}
+$('body').off('change', '#bjb_cloudDevice').on('change', '#bjb_cloudDevice', bjbCloudPickDevice);
+
+$('body').off('click', '#bjb_cloudLogin').on('click', '#bjb_cloudLogin', function () {
+  var env = bjbCloudEnv();
+  if (!env.email || !env.password) { $('#div_alert').showAlert({ message: '{{Email et mot de passe requis}}', level: 'warning' }); return; }
+  $('#bjb_cloudLogin').prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> {{Connexion…}}');
+  $.ajax({
+    type: 'POST', url: 'plugins/bambujab/core/ajax/bambujab.ajax.php',
+    data: { action: 'cloudLogin', email: env.email, password: env.password, region: env.region }, dataType: 'json',
+    complete: function () { $('#bjb_cloudLogin').prop('disabled', false).html('<i class="fas fa-sign-in-alt"></i> {{Se connecter}}'); },
+    error: function (req, st, err) { handleAjaxError(req, st, err); },
+    success: function (data) {
+      if (data.state !== 'ok' || !data.result || data.result.ok === false) {
+        $('#div_alert').showAlert({ message: '{{Échec}} : ' + ((data.result && data.result.error) || data.result), level: 'danger' }); return;
+      }
+      if (data.result.need_code) {
+        $('#bjb_cloudCodeRow').show();
+        $('#div_alert').showAlert({ message: '{{Un code a été envoyé par email. Saisissez-le ci-dessous.}}', level: 'info' });
+      } else {
+        bjbCloudFill(data.result);
+        $('#div_alert').showAlert({ message: '{{Connecté. Choisissez votre imprimante.}}', level: 'success' });
+      }
+    }
+  });
+});
+
+$('body').off('click', '#bjb_cloudVerify').on('click', '#bjb_cloudVerify', function () {
+  var env = bjbCloudEnv();
+  if (!env.code) { $('#div_alert').showAlert({ message: '{{Saisissez le code reçu}}', level: 'warning' }); return; }
+  $('#bjb_cloudVerify').prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i>');
+  $.ajax({
+    type: 'POST', url: 'plugins/bambujab/core/ajax/bambujab.ajax.php',
+    data: { action: 'cloudVerify', email: env.email, code: env.code, region: env.region }, dataType: 'json',
+    complete: function () { $('#bjb_cloudVerify').prop('disabled', false).html('<i class="fas fa-check"></i> {{Valider}}'); },
+    error: function (req, st, err) { handleAjaxError(req, st, err); },
+    success: function (data) {
+      if (data.state !== 'ok' || !data.result || data.result.ok === false) {
+        $('#div_alert').showAlert({ message: '{{Code invalide}} : ' + ((data.result && data.result.error) || ''), level: 'danger' }); return;
+      }
+      bjbCloudFill(data.result);
+      $('#div_alert').showAlert({ message: '{{Connecté. Choisissez votre imprimante puis Sauvegardez.}}', level: 'success' });
+    }
+  });
+});
+
 /* Bouton don */
 $('#bt_donBambuJab').off('click').on('click', function () { $('#modal_donBambuJab').modal('show'); });
 

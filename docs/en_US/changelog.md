@@ -4,6 +4,13 @@
 >
 >If there is no information about an update, it only concerns documentation, translation or text.
 
+# 0.5.0 (beta)
+
+- ☁️ **BambuLab Cloud mode**: choose LAN or Cloud when adding a printer (fields adapt).
+  Account login (email + verification code), bound-printer selection, monitoring and control
+  over cloud MQTT. Widget adapts (LAN/Cloud badge; camera/FTPS are LAN-only).
+  ⚠️ Cloud control may be restricted by BambuLab (Bambu Connect).
+
 # 0.3.0 (beta)
 
 - 📷 Camera (best-effort P1/A1): chamber image capture + auto-refresh.

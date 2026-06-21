@@ -4,6 +4,13 @@
 >
 >S'il n'y a pas d'information sur la mise à jour, c'est qu'elle concerne uniquement de la documentation, une traduction ou du texte.
 
+# 0.5.0 (beta)
+
+- ☁️ **Mode Cloud BambuLab** : choix LAN ou Cloud à la création de l'équipement (champs adaptés).
+  Connexion par compte (email + code de vérification), sélection de l'imprimante liée,
+  monitoring et pilotage via MQTT cloud. Widget adapté (badge LAN/Cloud ; caméra/FTPS = LAN seulement).
+  ⚠️ Le pilotage cloud peut être restreint par BambuLab (Bambu Connect).
+
 # 0.3.0 (beta)
 
 - 📷 Caméra (best-effort P1/A1) : capture d'image de la chambre + rafraîchissement automatique.
