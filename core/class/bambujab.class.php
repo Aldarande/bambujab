@@ -210,13 +210,22 @@ class bambujab extends eqLogic {
     if (file_exists($pid_file)) {
       $pid = intval(trim(file_get_contents($pid_file)));
       if ($pid > 0) {
-        shell_exec('kill -15 ' . $pid . ' 2>/dev/null; sleep 0.2; kill -9 ' . $pid . ' 2>/dev/null');
+        shell_exec('kill -15 ' . $pid . ' 2>/dev/null');
+        // Attendre la mort effective du processus (sinon le port reste occupé
+        // et le redémarrage échoue avec "Address already in use").
+        $isAlive = function ($p) {
+          return function_exists('posix_kill') ? @posix_kill($p, 0) : @file_exists("/proc/$p");
+        };
+        for ($i = 0; $i < 20 && $isAlive($pid); $i++) { usleep(150000); }
+        if ($isAlive($pid)) { shell_exec('kill -9 ' . $pid . ' 2>/dev/null'); usleep(300000); }
       }
       @unlink($pid_file);
     }
+    // Filet de sécurité : libère le port socket dans tous les cas.
     $port = intval(self::getPort());
     if ($port > 0) {
       shell_exec('fuser -k ' . $port . '/tcp > /dev/null 2>&1');
+      usleep(200000);
     }
   }
 
