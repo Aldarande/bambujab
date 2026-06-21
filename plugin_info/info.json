@@ -1,0 +1,38 @@
+{
+  "id": "bambujab",
+  "name": "BambuJab",
+  "description": "Surveillance et pilotage des imprimantes 3D BambuLab sur le réseau local (LAN-only) : états, AMS, filaments, étapes d'impression.",
+  "licence": "AGPL v3",
+  "author": "Aldarande",
+  "require": "4.4.0",
+  "category": "automation",
+  "hasDependency": true,
+  "hasOwnDeamon": true,
+  "maxDependancyInstallTime": 300,
+  "pluginVersion": "0.1.0",
+  "documentation": "https://aldarande.github.io/bambujab/#language#/index.html",
+  "documentation_beta": "https://aldarande.github.io/bambujab/#language#/beta.html",
+  "changelog": "https://aldarande.github.io/bambujab/#language#/index.html#changelog",
+  "changelog_beta": "https://aldarande.github.io/bambujab/#language#/beta.html#beta-nouveautes",
+  "language": [
+    "fr_FR",
+    "en_US",
+    "de_DE",
+    "it_IT",
+    "es_ES"
+  ],
+  "compatibility": [
+    "smart",
+    "luna",
+    "atlas",
+    "rpi",
+    "docker",
+    "diy",
+    "mobile"
+  ],
+  "excludeFromBackup": [
+    "resources/venv",
+    "resources/bambujabd/jeedom/__pycache__",
+    "resources/bambujabd/bambu/__pycache__"
+  ]
+}

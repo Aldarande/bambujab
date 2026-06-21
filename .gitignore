@@ -1,0 +1,26 @@
+nbproject/
+test.php
+core/config/common.config.php
+plugins
+sftp-config.json
+.project
+.DS_Store
+Thumbs.db
+*.php~
+docs/_site/
+docs/Gemfile.lock
+docs/.sass-cache/
+.remote-sync.json
+.vscode
+.claude/
+
+# BambuJab — dépendances Python (recréées par install_dep.sh) et fichiers runtime
+resources/venv/
+resources/python_venv/
+resources/*venv*/
+**/__pycache__/
+*.pyc
+*.pid
+snap_*.jpg
+docs/_dev/
+*.stackdump

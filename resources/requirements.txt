@@ -1,0 +1,4 @@
+# BambuJab — dépendances Python du démon (LAN-only, monitoring v0.1)
+# Versions pinnées (sécurité + reproductibilité). Installées en venv par install_dep.sh.
+paho-mqtt==2.1.0
+requests==2.32.3
