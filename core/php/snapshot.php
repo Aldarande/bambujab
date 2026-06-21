@@ -9,6 +9,8 @@
 require_once dirname(__FILE__) . '/../../../../core/php/core.inc.php';
 include_file('core', 'authentification', 'php');
 
+log::add('bambujab', 'debug', 'snapshot.php — appel id=' . init('id') . ' connecté=' . (isConnect() ? '1' : '0'));
+
 if (!isConnect()) {
   http_response_code(401);
   die('401');
@@ -22,11 +24,13 @@ if (!is_object($eqLogic)) {
 
 try {
   $path = $eqLogic->getSnapshot();
+  log::add('bambujab', 'debug', 'snapshot.php — image servie : ' . filesize($path) . ' octets');
   header('Content-Type: image/jpeg');
   header('Cache-Control: no-store, max-age=0');
   header('Content-Length: ' . filesize($path));
   readfile($path);
 } catch (Exception $e) {
+  log::add('bambujab', 'warning', 'snapshot.php — échec : ' . $e->getMessage());
   http_response_code(503);
   header('Content-Type: text/plain; charset=utf-8');
   echo $e->getMessage();

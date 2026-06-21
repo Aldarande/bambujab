@@ -440,6 +440,9 @@ class bambujab extends eqLogic {
     $dir = jeedom::getTmpFolder('bambujab');
     if (!is_dir($dir)) { @mkdir($dir, 0775, true); }
     $out = $dir . '/snap_' . $this->getId() . '.jpg';
+    // Robustesse : supprime un éventuel fichier précédent non réinscriptible
+    // (ex. créé par un autre utilisateur lors d'un test CLI) avant la capture.
+    if (file_exists($out) && !is_writable($out)) { @unlink($out); }
     $cmd = $this->ftpEnvPrefix() . 'timeout 15 ' . escapeshellarg($python) . ' '
          . escapeshellarg($tool) . ' ' . escapeshellarg($out) . ' 2>/dev/null';
     $res = json_decode(trim((string)shell_exec($cmd)), true);
