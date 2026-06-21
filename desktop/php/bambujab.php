@@ -248,12 +248,20 @@ $eqLogics = eqLogic::byType($plugin->getId());
                     <select class="form-control" id="bjb_cloudDevice"></select>
                   </div>
                 </div>
+                <div class="form-group">
+                  <label class="col-sm-4 control-label">{{IP locale (caméra)}} <small class="text-muted">({{optionnel}})</small>
+                    <sup><i class="fas fa-question-circle tooltips" title="{{IP locale de l'imprimante sur votre réseau. Permet d'afficher la caméra dans le widget même en mode Cloud (le flux passe en local). Laissez vide si l'imprimante n'est pas sur le même réseau.}}"></i></sup>
+                  </label>
+                  <div class="col-sm-6">
+                    <input type="text" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="camera_ip" placeholder="192.168.1.50">
+                  </div>
+                </div>
                 <!-- champs cachés persistés -->
                 <input type="hidden" class="eqLogicAttr" id="bjb_cloudToken" data-l1key="configuration" data-l2key="cloud_token">
                 <input type="hidden" class="eqLogicAttr" id="bjb_cloudUsername" data-l1key="configuration" data-l2key="cloud_username">
                 <input type="hidden" class="eqLogicAttr" id="bjb_cloudMqttHost" data-l1key="configuration" data-l2key="cloud_mqtt_host">
                 <div class="alert alert-warning" style="margin-top:8px;">
-                  <i class="fas fa-info-circle"></i> {{En mode Cloud, le pilotage peut être restreint par BambuLab (Bambu Connect) et la caméra/FTPS locale ne sont pas disponibles.}}
+                  <i class="fas fa-info-circle"></i> {{En mode Cloud, le pilotage peut être restreint par BambuLab (Bambu Connect). La caméra reste possible si vous renseignez l'IP locale ci-dessus (le flux passe en local).}}
                 </div>
               </div>
             </div>

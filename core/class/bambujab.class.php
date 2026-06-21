@@ -357,10 +357,13 @@ class bambujab extends eqLogic {
   // Secrets (IP/access code) passés au script Python par variables d'env.
   // -------------------------------------------------------------------------
   private function ftpEnvPrefix() {
+    // En mode cloud, l'IP LAN n'est pas saisie : on accepte une IP locale dédiée
+    // (camera_ip) pour la caméra/FTPS, l'imprimante restant joignable sur le réseau.
     $ip   = trim((string)$this->getConfiguration('ip', ''));
+    if ($ip === '') { $ip = trim((string)$this->getConfiguration('camera_ip', '')); }
     $code = trim((string)$this->getConfiguration('access_code', ''));
     if ($ip === '' || $code === '') {
-      throw new Exception(__('IP ou code d\'accès manquant', __FILE__));
+      throw new Exception(__('IP locale ou code d\'accès manquant (renseignez l\'IP locale pour la caméra)', __FILE__));
     }
     return 'BAMBU_IP=' . escapeshellarg($ip) . ' BAMBU_CODE=' . escapeshellarg($code) . ' ';
   }
@@ -574,8 +577,12 @@ class bambujab extends eqLogic {
     $cameraOn = (int)$this->val('camera_on', 0);
     $id       = $this->getId();
     $mode     = trim((string)$this->getConfiguration('conn_mode', 'lan'));
-    // La caméra locale (port 6000) n'existe qu'en LAN
-    if ($mode === 'cloud') { $cameraOn = 0; }
+    // Caméra locale (port 6000) : dispo dès qu'on a une IP locale + code d'accès,
+    // que l'imprimante soit en mode LAN ou Cloud (elle reste joignable sur le réseau).
+    $camIp     = trim((string)$this->getConfiguration('ip', ''));
+    if ($camIp === '') { $camIp = trim((string)$this->getConfiguration('camera_ip', '')); }
+    $hasCamera = ($camIp !== '' && trim((string)$this->getConfiguration('access_code', '')) !== '');
+    if (!$hasCamera) { $cameraOn = 0; }
     $modeBadge = ($mode === 'cloud')
       ? '<span class="jbb-mode" title="Cloud BambuLab">☁ Cloud</span>'
       : '<span class="jbb-mode" title="Réseau local">🏠 LAN</span>';
@@ -655,12 +662,15 @@ class bambujab extends eqLogic {
   <div class="jbb-titlebar">
     <a class="jbb-name" href="index.php?v=d&p=bambujab&m=bambujab&id=<?php echo $id; ?>" title="<?php echo __('Ouvrir la configuration', __FILE__); ?>"><?php echo htmlspecialchars($this->getName()); ?></a>
     <span class="jbb-tools">
+      <?php if ($hasCamera) { ?>
+      <span class="jbb-tool" title="<?php echo __('Caméra (afficher/masquer le flux)', __FILE__); ?>" onclick="jbbCamToggle<?php echo $id; ?>()"><i class="fas fa-video"></i></span>
+      <?php } ?>
       <a class="jbb-tool" href="https://ko-fi.com/aldarande" target="_blank" rel="noopener" title="<?php echo __('Faire un don', __FILE__); ?>"><i class="fas fa-mug-hot"></i></a>
       <span class="jbb-tool" title="<?php echo __('Rafraîchir', __FILE__); ?>" onclick="jbbRefresh<?php echo $id; ?>()"><i class="fas fa-sync"></i></span>
     </span>
   </div>
-  <?php if ($cameraOn === 1) { ?>
-  <div class="jbb-cam"><img id="jbbCam<?php echo $id; ?>" alt="<?php echo __('Caméra', __FILE__); ?>"></div>
+  <?php if ($hasCamera) { ?>
+  <div class="jbb-cam" id="jbbCamWrap<?php echo $id; ?>" style="display:<?php echo $cameraOn === 1 ? 'block' : 'none'; ?>;"><img id="jbbCam<?php echo $id; ?>" alt="<?php echo __('Caméra', __FILE__); ?>"></div>
   <?php } ?>
   <div class="jbb-head">
     <div><span class="jbb-model">🖨 <?php echo htmlspecialchars($model); ?></span>
@@ -683,18 +693,28 @@ class bambujab extends eqLogic {
 function jbbRefresh<?php echo $id; ?>(){
   try{ $.ajax({type:'POST',url:'plugins/bambujab/core/ajax/bambujab.ajax.php',data:{action:'pushall',id:<?php echo $id; ?>},dataType:'json'}); }catch(e){}
 }
-(function(){
-  window.bjbCam = window.bjbCam || {};
-  if(window.bjbCam[<?php echo $id; ?>]){clearInterval(window.bjbCam[<?php echo $id; ?>]);delete window.bjbCam[<?php echo $id; ?>];}
-<?php if ($cameraOn === 1) { ?>
-  var up=function(){
-    var img=document.getElementById('jbbCam<?php echo $id; ?>');
-    if(!img){clearInterval(window.bjbCam[<?php echo $id; ?>]);return;}
-    img.src='plugins/bambujab/core/php/snapshot.php?id=<?php echo $id; ?>&t='+Date.now();
-  };
-  up(); window.bjbCam[<?php echo $id; ?>]=setInterval(up,2500);
+window.bjbCam = window.bjbCam || {};
+function jbbCamUp<?php echo $id; ?>(){
+  var img=document.getElementById('jbbCam<?php echo $id; ?>');
+  if(!img){ if(window.bjbCam[<?php echo $id; ?>]){clearInterval(window.bjbCam[<?php echo $id; ?>]);delete window.bjbCam[<?php echo $id; ?>];} return; }
+  img.onerror=function(){ img.alt='{{Caméra indisponible}}'; };
+  img.src='plugins/bambujab/core/php/snapshot.php?id=<?php echo $id; ?>&t='+Date.now();
+}
+function jbbCamStart<?php echo $id; ?>(){
+  var w=document.getElementById('jbbCamWrap<?php echo $id; ?>'); if(w){w.style.display='block';}
+  jbbCamUp<?php echo $id; ?>();
+  if(!window.bjbCam[<?php echo $id; ?>]){ window.bjbCam[<?php echo $id; ?>]=setInterval(jbbCamUp<?php echo $id; ?>,2500); }
+}
+function jbbCamToggle<?php echo $id; ?>(){
+  var w=document.getElementById('jbbCamWrap<?php echo $id; ?>');
+  if(window.bjbCam[<?php echo $id; ?>]){
+    clearInterval(window.bjbCam[<?php echo $id; ?>]); delete window.bjbCam[<?php echo $id; ?>];
+    if(w){w.style.display='none';}
+  } else { jbbCamStart<?php echo $id; ?>(); }
+}
+<?php if ($cameraOn === 1 && $hasCamera) { ?>
+if(!window.bjbCam[<?php echo $id; ?>]){ jbbCamStart<?php echo $id; ?>(); }
 <?php } ?>
-})();
 </script>
     <?php
     return ob_get_clean();
