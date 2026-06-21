@@ -146,6 +146,8 @@ include_file('desktop', 'bambujab', 'css', 'bambujab');
                 </div>
               </div>
 
+              <div id="bjb_statusBanner" class="alert" style="display:none;margin-bottom:12px;font-size:.95em;"></div>
+
               <legend><i class="fas fa-plug"></i> {{Connexion}}</legend>
               <div class="form-group">
                 <label class="col-sm-4 control-label">{{Mode de connexion}}

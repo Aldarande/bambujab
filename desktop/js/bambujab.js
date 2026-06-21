@@ -44,10 +44,34 @@ function bjbApplyConnMode() {
   }
 }
 $('body').off('change', '#bjb_connMode').on('change', '#bjb_connMode', bjbApplyConnMode);
-// Appliqué aussi après le rendu de l'équipement
+// Appliqué aussi après le rendu de l'équipement (mode + bandeau de statut)
 $('body').off('click.bjbmode', '.li_eqLogic, #bt_addBambuJab').on('click.bjbmode', '.li_eqLogic, #bt_addBambuJab', function () {
-  setTimeout(bjbApplyConnMode, 300);
+  setTimeout(function () {
+    bjbApplyConnMode();
+    bjbRefreshStatus($('.eqLogicAttr[data-l1key=id]').value());
+  }, 300);
 });
+
+// Bandeau de statut : mode (LAN/Cloud) + en ligne/hors ligne + modèle/état
+function bjbRefreshStatus(id) {
+  var $b = $('#bjb_statusBanner');
+  if (!id) { $b.hide(); return; }
+  $.ajax({
+    type: 'POST', url: 'plugins/bambujab/core/ajax/bambujab.ajax.php',
+    data: { action: 'status', id: id }, dataType: 'json',
+    error: function () { $b.hide(); },
+    success: function (d) {
+      if (d.state !== 'ok' || !d.result) { $b.hide(); return; }
+      var r = d.result, on = (parseInt(r.online, 10) === 1);
+      var mode = (r.mode === 'cloud') ? '☁️ {{Cloud}}' : '🏠 {{LAN (local)}}';
+      var dot = on ? '🟢 {{En ligne}}' : '🔴 {{Hors ligne}}';
+      var extra = (r.model ? ' · ' + r.model : '') + (r.state ? ' · ' + r.state : '');
+      $b.removeClass('alert-success alert-warning alert-info')
+        .addClass(on ? 'alert-success' : 'alert-warning')
+        .html('<b>' + mode + '</b> &nbsp;·&nbsp; ' + dot + extra).show();
+    }
+  });
+}
 
 function bjbCloudEnv() {
   return {
@@ -175,7 +199,8 @@ function bjbLoadFiles(id) {
       if (data.state !== 'ok') { $('#bjb_filesList').html('<div class="alert alert-danger">' + data.result + '</div>'); return; }
       var files = (data.result || []).filter(function (f) { return !f.dir; });
       if (!files.length) { $('#bjb_filesList').html('<div class="jbb-muted" style="padding:14px;">{{Aucun fichier imprimable}}</div>'); return; }
-      var html = '<table class="table table-condensed table-hover"><tbody>';
+      var html = '<div class="text-muted" style="margin-bottom:6px;"><i class="fas fa-folder-open"></i> ' + files.length + ' {{fichier(s)}}</div>';
+      html += '<table class="table table-condensed table-hover"><tbody>';
       files.forEach(function (f) {
         var ko = f.size > 0 ? ' <small class="text-muted">(' + Math.round(f.size / 1024) + ' Ko)</small>' : '';
         html += '<tr class="bjb-file-row" data-name="' + f.name + '">'

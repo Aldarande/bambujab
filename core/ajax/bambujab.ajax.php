@@ -26,6 +26,24 @@ try {
     ajax::success();
   }
 
+  if (init('action') === 'status') {
+    $eqLogic = bambujab::byId(init('id'));
+    if (!is_object($eqLogic)) {
+      throw new Exception(__('Équipement introuvable', __FILE__));
+    }
+    $get = function ($lid) use ($eqLogic) {
+      $c = $eqLogic->getCmd('info', $lid);
+      return is_object($c) ? $c->execCmd() : '';
+    };
+    ajax::success(array(
+      'mode'    => $eqLogic->getConfiguration('conn_mode', 'lan'),
+      'online'  => (int)$get('online'),
+      'state'   => (string)$get('printer_state'),
+      'model'   => (string)$get('model'),
+      'hasCam'  => ($eqLogic->getConfiguration('ip', '') !== '' || $eqLogic->getConfiguration('camera_ip', '') !== ''),
+    ));
+  }
+
   if (init('action') === 'cloudLogin') {
     ajax::success(bambujab::cloudTool('login', array(
       'BAMBU_EMAIL'    => init('email'),
