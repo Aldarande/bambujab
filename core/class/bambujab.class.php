@@ -11,7 +11,7 @@ require_once __DIR__ . '/../../../../core/php/core.inc.php';
 class bambujab extends eqLogic {
 
   const DAEMON_PORT_DEFAULT = 55070;
-  const WIDGET_CSS_VERSION = '051'; // bump pour invalider le cache du CSS widget
+  const WIDGET_CSS_VERSION = '052'; // bump pour invalider le cache du CSS widget
 
   /* Champs de configuration chiffrés automatiquement (access code = secret). */
   public static $_encryptConfigKey = array('access_code');
@@ -610,7 +610,15 @@ class bambujab extends eqLogic {
       'Échec' => '#dc2626', 'Inactif' => '#64748b', 'Préparation' => '#0891b2',
     );
     $sc = isset($stateColors[$state]) ? $stateColors[$state] : '#64748b';
-    if ($online !== 1) { $sc = '#475569'; $state = __('Hors ligne', __FILE__); }
+    // Plus de données : l'imprimante BambuLab finit puis se met en veille (elle
+    // reste joignable et se reconnecte au réveil) — on garde son dernier état réel
+    // et on ajoute un badge "En veille" plutôt qu'un "Hors ligne" trompeur.
+    $sleepBadge = '';
+    if ($online !== 1) {
+      $sc = '#64748b';
+      $sleepBadge = '<span class="jbb-mode jbb-sleep" title="' . __('Aucune donnée récente — imprimante en veille', __FILE__) . '">💤 ' . __('En veille', __FILE__) . '</span>';
+      if ($state === '' || $state === '—') { $state = __('En veille', __FILE__); }
+    }
 
     // Temps restant lisible
     $rt = '';
@@ -678,7 +686,7 @@ class bambujab extends eqLogic {
   <div class="jbb-head">
     <div><span class="jbb-model">🖨 <?php echo htmlspecialchars($model); ?></span>
       <i class="fas fa-lightbulb jbb-light" title="<?php echo __('Allumer / éteindre la lumière', __FILE__); ?>" data-on="<?php echo $light ? '1' : '0'; ?>" style="color:<?php echo $light ? '#fbbf24' : '#475569'; ?>;" onclick="(function(el){var id=<?php echo $id; ?>;var ns=el.getAttribute('data-on')==='1'?0:1;el.setAttribute('data-on',ns);el.style.color=ns?'#fbbf24':'#475569';try{$.ajax({type:'POST',url:'plugins/bambujab/core/ajax/bambujab.ajax.php',data:{action:'light',id:id,state:ns?'on':'off'},dataType:'json'});}catch(e){}})(this);return false;"></i>
-      <?php echo $modeBadge; ?><?php echo $hmsBadge; ?></div>
+      <?php echo $modeBadge; ?><?php echo $sleepBadge; ?><?php echo $hmsBadge; ?></div>
     <span class="jbb-badge" style="background:<?php echo $sc; ?>;"><?php echo htmlspecialchars($state); ?></span>
   </div>
   <div class="jbb-barwrap"><div class="jbb-bar" style="width:<?php echo max(0, min(100, $progress)); ?>%;background:<?php echo $sc; ?>;"></div></div>

@@ -64,10 +64,10 @@ function bjbRefreshStatus(id) {
       if (d.state !== 'ok' || !d.result) { $b.hide(); return; }
       var r = d.result, on = (parseInt(r.online, 10) === 1);
       var mode = (r.mode === 'cloud') ? '☁️ {{Cloud}}' : '🏠 {{LAN (local)}}';
-      var dot = on ? '🟢 {{En ligne}}' : '🔴 {{Hors ligne}}';
+      var dot = on ? '🟢 {{En ligne}}' : '💤 {{En veille}}';
       var extra = (r.model ? ' · ' + r.model : '') + (r.state ? ' · ' + r.state : '');
       $b.removeClass('alert-success alert-warning alert-info')
-        .addClass(on ? 'alert-success' : 'alert-warning')
+        .addClass(on ? 'alert-success' : 'alert-info')
         .html('<b>' + mode + '</b> &nbsp;·&nbsp; ' + dot + extra).show();
     }
   });
