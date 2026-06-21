@@ -4,6 +4,16 @@
 >
 >If there is no information about an update, it only concerns documentation, translation or text.
 
+# 0.6.0 (beta)
+
+- 📷 **Live video stream (MJPEG)** from the camera in the widget (persistent connection, ~1 fps A1/P1), instead of frozen snapshots.
+- 🟢💤🔌 **3 printer states**: Online / Sleeping / Off (network reachability probe to tell sleep from power-off).
+- 💡 **Clickable light** directly in the widget; title bar (name → config, donate, refresh).
+- 🎨 AMS spools **numbered and spread** across the widget width.
+- ☁️ **Cloud mode** finalized: **Google/Apple/Facebook** accounts supported (token), reliable MQTT user id resolution, local camera available in cloud via the local IP.
+- 🔒 **Security hardening**: config/camera pages admin-only, Jeedom apikey in HTTP header (no longer in URL), unverified TLS documented (LAN self-signed), template script removed.
+- 🧹 Automatic daemon restart on connection change; robust camera stream teardown; various fixes.
+
 # 0.5.0 (beta)
 
 - ☁️ **BambuLab Cloud mode**: choose LAN or Cloud when adding a printer (fields adapt).

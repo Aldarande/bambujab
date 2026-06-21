@@ -4,6 +4,16 @@
 >
 >S'il n'y a pas d'information sur la mise à jour, c'est qu'elle concerne uniquement de la documentation, une traduction ou du texte.
 
+# 0.6.0 (beta)
+
+- 📷 **Flux vidéo live (MJPEG)** de la caméra dans le widget (connexion persistante, ~1 fps A1/P1), au lieu d'images figées.
+- 🟢💤🔌 **3 états** d'imprimante : En ligne / En veille / Éteinte (sonde de joignabilité réseau pour distinguer veille et extinction).
+- 💡 **Lumière cliquable** directement dans le widget ; barre de titre (nom → config, don, rafraîchir).
+- 🎨 Bobines AMS **numérotées et réparties** sur la largeur du widget.
+- ☁️ Mode **Cloud** finalisé : comptes **Google/Apple/Facebook** pris en charge (jeton), récupération fiable de l'identifiant MQTT, caméra locale possible en cloud via l'IP locale.
+- 🔒 **Durcissement sécurité** : pages config/caméra réservées aux admins, apikey Jeedom en en-tête HTTP (plus en URL), TLS non vérifié documenté (LAN auto-signé), suppression d'un script de template.
+- 🧹 Redémarrage automatique du démon au changement de connexion ; coupure robuste du flux caméra ; correctifs divers.
+
 # 0.5.0 (beta)
 
 - ☁️ **Mode Cloud BambuLab** : choix LAN ou Cloud à la création de l'équipement (champs adaptés).
