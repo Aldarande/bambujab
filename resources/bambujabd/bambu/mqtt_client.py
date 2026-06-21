@@ -121,7 +121,9 @@ class BambuMqttClient:
     def _on_connect(self, client, userdata, flags, reason_code, properties=None):
         if reason_code == 0:
             self._connected = True
-            self._set_online(True)
+            # On NE force PAS online=1 ici : être connecté au broker (surtout en cloud)
+            # ne signifie pas que l'imprimante est active. online passe à 1 à la
+            # réception d'un report réel (cf. bambujabd.on_report).
             client.subscribe(self.topic_report)
             LOGGER.info("mqtt_client.py: #%s connecté, souscription %s", self.instance_id, self.topic_report)
             # Si le n° de série est déjà connu (saisi), on émet aussi le modèle déduit

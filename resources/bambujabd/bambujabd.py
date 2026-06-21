@@ -36,6 +36,9 @@ _pushall_interval = 30  # secondes entre deux pushall (état complet)
 
 _clients = {}          # instance_id -> BambuMqttClient
 _last_pushall = 0
+_last_report = {}      # instance_id -> timestamp du dernier report reçu
+_online_pushed = {}    # instance_id -> dernier état 'online' poussé (anti-spam)
+STALE_SECONDS = 300    # sans report au-delà -> imprimante considérée hors ligne (veille/éteinte)
 jeedom_com_obj = None
 jeedom_socket_obj = None
 
@@ -52,6 +55,9 @@ def on_report(instance_id, report):
         if not changes:
             return
         changes["online"] = 1
+        # Fraîcheur : un report = imprimante active. Sert au watchdog check_freshness().
+        _last_report[instance_id] = time.time()
+        _online_pushed[instance_id] = True
         # Format consommé par callback.php : {instance_id, data:{logicalId:value}}
         jeedom_com_obj.add_changes("devices::%s" % instance_id, changes)
         logging.debug("bambujabd.py: #%s %d valeur(s) remontée(s)", instance_id, len(changes))
@@ -60,8 +66,27 @@ def on_report(instance_id, report):
 
 
 def on_status(instance_id, online):
-    """Callback connexion/déconnexion MQTT -> met à jour la cmd 'online'."""
-    jeedom_com_obj.add_changes("devices::%s" % instance_id, {"online": 1 if online else 0})
+    """Callback déconnexion MQTT -> marque hors ligne immédiatement.
+    NB : la mise EN ligne n'est PLUS déclenchée par la simple connexion au broker
+    (en cloud, on reste connecté même imprimante en veille) — elle vient de la
+    réception d'un report réel (on_report). Voir aussi check_freshness()."""
+    if not online:
+        _online_pushed[instance_id] = False
+        jeedom_com_obj.add_changes("devices::%s" % instance_id, {"online": 0})
+
+
+def check_freshness():
+    """Watchdog : si aucune donnée reçue depuis STALE_SECONDS alors qu'on se croyait
+    en ligne, on repasse l'imprimante hors ligne (veille / éteinte). Évite l'affichage
+    figé d'un 'en ligne' trompeur quand le broker cloud reste connecté mais muet."""
+    now = time.time()
+    for iid in list(_clients.keys()):
+        last = _last_report.get(iid, 0)
+        if _online_pushed.get(iid, False) and last > 0 and (now - last) > STALE_SECONDS:
+            _online_pushed[iid] = False
+            jeedom_com_obj.add_changes("devices::%s" % iid, {"online": 0})
+            logging.info("bambujabd.py: #%s aucune donnée depuis %ds -> hors ligne (veille ?)",
+                         iid, int(now - last))
 
 
 def on_identify(instance_id, serial, model):
@@ -107,6 +132,10 @@ def start_instances(instances):
                                      host=ip, port=int(inst.get("port", 8883)),
                                      username="bblp", tls_insecure=True)
         _clients[iid] = client
+        # Amorce le watchdog : la fenêtre de fraîcheur démarre maintenant. Si aucun
+        # report n'arrive sous STALE_SECONDS (imprimante en veille), online passera à 0.
+        _last_report[iid] = time.time()
+        _online_pushed[iid] = True
         client.start()
     logging.info("bambujabd.py: %d imprimante(s) démarrée(s)", len(_clients))
 
@@ -183,6 +212,7 @@ def listen():
             time.sleep(0.3)
             read_socket()
             periodic_pushall()
+            check_freshness()
     except KeyboardInterrupt:
         shutdown()
 
