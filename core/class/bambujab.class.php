@@ -11,7 +11,7 @@ require_once __DIR__ . '/../../../../core/php/core.inc.php';
 class bambujab extends eqLogic {
 
   const DAEMON_PORT_DEFAULT = 55070;
-  const WIDGET_CSS_VERSION = '052'; // bump pour invalider le cache du CSS widget
+  const WIDGET_CSS_VERSION = '053'; // bump pour invalider le cache du CSS widget
 
   /* Champs de configuration chiffrés automatiquement (access code = secret). */
   public static $_encryptConfigKey = array('access_code');
@@ -48,6 +48,7 @@ class bambujab extends eqLogic {
       'hms_severity'      => array('Gravité alerte HMS','string',  '',    'GENERIC_INFO'),
       'hms_messages'      => array('Alertes HMS',       'string',  '',    'GENERIC_INFO'),
       'camera_on'         => array('Caméra active',     'binary',  '',    'GENERIC_INFO'),
+      'reachable'         => array('Joignable (réseau)','binary',  '',    'GENERIC_INFO'),
     );
   }
 
@@ -141,6 +142,8 @@ class bambujab extends eqLogic {
           'username' => $user,
           'token'    => $token,
           'serial'   => $serial,
+          // IP locale (optionnelle) pour sonder la joignabilité (veille vs éteinte)
+          'probe_ip' => trim((string)$eqLogic->getConfiguration('camera_ip', '')),
         );
       } else {
         // LAN : IP + access code ; serial optionnel (auto-découverte).
@@ -153,6 +156,7 @@ class bambujab extends eqLogic {
           'ip'          => $ip,
           'serial'      => $serial,
           'access_code' => $code,
+          'probe_ip'    => $ip, // sonde de joignabilité (veille vs éteinte)
         );
       }
     }
@@ -613,11 +617,20 @@ class bambujab extends eqLogic {
     // Plus de données : l'imprimante BambuLab finit puis se met en veille (elle
     // reste joignable et se reconnecte au réveil) — on garde son dernier état réel
     // et on ajoute un badge "En veille" plutôt qu'un "Hors ligne" trompeur.
+    $reachable = (int)$this->val('reachable', 1); // 1 par défaut tant que non sondé
     $sleepBadge = '';
     if ($online !== 1) {
-      $sc = '#64748b';
-      $sleepBadge = '<span class="jbb-mode jbb-sleep" title="' . __('Aucune donnée récente — imprimante en veille', __FILE__) . '">💤 ' . __('En veille', __FILE__) . '</span>';
-      if ($state === '' || $state === '—') { $state = __('En veille', __FILE__); }
+      if ($reachable === 0) {
+        // Injoignable sur le réseau -> réellement éteinte
+        $sc = '#dc2626';
+        $sleepBadge = '<span class="jbb-mode jbb-off" title="' . __('Injoignable sur le réseau — imprimante éteinte', __FILE__) . '">🔌 ' . __('Éteinte', __FILE__) . '</span>';
+        if ($state === '' || $state === '—') { $state = __('Éteinte', __FILE__); }
+      } else {
+        // Joignable mais muette -> en veille
+        $sc = '#64748b';
+        $sleepBadge = '<span class="jbb-mode jbb-sleep" title="' . __('Joignable mais aucune donnée — imprimante en veille', __FILE__) . '">💤 ' . __('En veille', __FILE__) . '</span>';
+        if ($state === '' || $state === '—') { $state = __('En veille', __FILE__); }
+      }
     }
 
     // Temps restant lisible

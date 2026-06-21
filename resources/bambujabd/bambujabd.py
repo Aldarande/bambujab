@@ -14,6 +14,7 @@ import json
 import logging
 import os
 import signal
+import socket
 import sys
 import time
 import traceback
@@ -38,7 +39,12 @@ _clients = {}          # instance_id -> BambuMqttClient
 _last_pushall = 0
 _last_report = {}      # instance_id -> timestamp du dernier report reçu
 _online_pushed = {}    # instance_id -> dernier état 'online' poussé (anti-spam)
-STALE_SECONDS = 300    # sans report au-delà -> imprimante considérée hors ligne (veille/éteinte)
+_probe_ip = {}         # instance_id -> IP locale à sonder (joignabilité)
+_reachable_pushed = {} # instance_id -> dernier état 'reachable' poussé
+_last_probe = {}       # instance_id -> timestamp de la dernière sonde
+STALE_SECONDS = 300    # sans report au-delà -> imprimante plus "active"
+PROBE_INTERVAL = 60    # intervalle entre deux sondes de joignabilité (s)
+PROBE_PORTS = (8883, 6000, 990)  # ports BambuLab (MQTT / caméra / FTPS)
 jeedom_com_obj = None
 jeedom_socket_obj = None
 
@@ -55,9 +61,11 @@ def on_report(instance_id, report):
         if not changes:
             return
         changes["online"] = 1
+        changes["reachable"] = 1  # reçoit des données -> évidemment joignable
         # Fraîcheur : un report = imprimante active. Sert au watchdog check_freshness().
         _last_report[instance_id] = time.time()
         _online_pushed[instance_id] = True
+        _reachable_pushed[instance_id] = True
         # Format consommé par callback.php : {instance_id, data:{logicalId:value}}
         jeedom_com_obj.add_changes("devices::%s" % instance_id, changes)
         logging.debug("bambujabd.py: #%s %d valeur(s) remontée(s)", instance_id, len(changes))
@@ -75,18 +83,48 @@ def on_status(instance_id, online):
         jeedom_com_obj.add_changes("devices::%s" % instance_id, {"online": 0})
 
 
+def _probe_reachable(ip):
+    """Teste si l'imprimante répond sur le réseau (TCP sur un port BambuLab).
+    Sert à distinguer 'en veille' (joignable, mais muette) d''éteinte' (injoignable).
+    Sans IP locale connue, on ne peut pas trancher -> renvoie None."""
+    if not ip:
+        return None
+    for port in PROBE_PORTS:
+        try:
+            s = socket.create_connection((ip, port), timeout=2)
+            s.close()
+            return True
+        except Exception:
+            continue
+    return False
+
+
 def check_freshness():
-    """Watchdog : si aucune donnée reçue depuis STALE_SECONDS alors qu'on se croyait
-    en ligne, on repasse l'imprimante hors ligne (veille / éteinte). Évite l'affichage
-    figé d'un 'en ligne' trompeur quand le broker cloud reste connecté mais muet."""
+    """Watchdog : sans report depuis STALE_SECONDS, l'imprimante n'est plus 'active'.
+    On sonde alors sa joignabilité réseau pour distinguer veille (joignable) et
+    éteinte (injoignable). Évite un affichage figé/trompeur."""
     now = time.time()
     for iid in list(_clients.keys()):
         last = _last_report.get(iid, 0)
-        if _online_pushed.get(iid, False) and last > 0 and (now - last) > STALE_SECONDS:
+        if last <= 0 or (now - last) <= STALE_SECONDS:
+            continue
+        # Plus de données -> plus "active"
+        if _online_pushed.get(iid, False):
             _online_pushed[iid] = False
             jeedom_com_obj.add_changes("devices::%s" % iid, {"online": 0})
-            logging.info("bambujabd.py: #%s aucune donnée depuis %ds -> hors ligne (veille ?)",
+            logging.info("bambujabd.py: #%s aucune donnée depuis %ds (veille/éteinte ?)",
                          iid, int(now - last))
+        # Sonde de joignabilité périodique
+        if now - _last_probe.get(iid, 0) < PROBE_INTERVAL:
+            continue
+        _last_probe[iid] = now
+        r = _probe_reachable(_probe_ip.get(iid, ""))
+        if r is None:
+            continue  # pas d'IP -> on laisse l'UI supposer "en veille"
+        if _reachable_pushed.get(iid) != r:
+            _reachable_pushed[iid] = r
+            jeedom_com_obj.add_changes("devices::%s" % iid, {"reachable": 1 if r else 0})
+            logging.info("bambujabd.py: #%s joignabilité réseau = %s", iid, "oui" if r else "non (éteinte)")
 
 
 def on_identify(instance_id, serial, model):
@@ -132,6 +170,7 @@ def start_instances(instances):
                                      host=ip, port=int(inst.get("port", 8883)),
                                      username="bblp", tls_insecure=True)
         _clients[iid] = client
+        _probe_ip[iid] = (inst.get("probe_ip") or "").strip()
         # Amorce le watchdog : la fenêtre de fraîcheur démarre maintenant. Si aucun
         # report n'arrive sous STALE_SECONDS (imprimante en veille), online passera à 0.
         _last_report[iid] = time.time()

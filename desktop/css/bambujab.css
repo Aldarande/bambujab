@@ -31,6 +31,7 @@
 .jbb-stage{font-size:.78em;color:#94a3b8;}
 .jbb-mode{font-size:.68em;color:#94a3b8;margin-left:8px;padding:2px 7px;border-radius:999px;background:rgba(148,163,184,.12);}
 .jbb-sleep{color:#cbd5e1;background:rgba(99,102,241,.18);}
+.jbb-off{color:#fecaca;background:rgba(220,38,38,.2);}
 .jbb-titlebar{display:flex;align-items:center;justify-content:space-between;margin:-4px -4px 10px;
   padding-bottom:8px;border-bottom:1px solid rgba(148,163,184,.15);}
 .jbb-name{color:#f1f5f9;font-weight:700;font-size:1.02em;text-decoration:none;cursor:pointer;}

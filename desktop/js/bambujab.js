@@ -63,11 +63,13 @@ function bjbRefreshStatus(id) {
     success: function (d) {
       if (d.state !== 'ok' || !d.result) { $b.hide(); return; }
       var r = d.result, on = (parseInt(r.online, 10) === 1);
+      var reach = (parseInt(r.reachable, 10) !== 0);
       var mode = (r.mode === 'cloud') ? '☁️ {{Cloud}}' : '🏠 {{LAN (local)}}';
-      var dot = on ? '🟢 {{En ligne}}' : '💤 {{En veille}}';
+      var dot = on ? '🟢 {{En ligne}}' : (reach ? '💤 {{En veille}}' : '🔌 {{Éteinte}}');
+      var cls = on ? 'alert-success' : (reach ? 'alert-info' : 'alert-danger');
       var extra = (r.model ? ' · ' + r.model : '') + (r.state ? ' · ' + r.state : '');
-      $b.removeClass('alert-success alert-warning alert-info')
-        .addClass(on ? 'alert-success' : 'alert-info')
+      $b.removeClass('alert-success alert-warning alert-info alert-danger')
+        .addClass(cls)
         .html('<b>' + mode + '</b> &nbsp;·&nbsp; ' + dot + extra).show();
     }
   });

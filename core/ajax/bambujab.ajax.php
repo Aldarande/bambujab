@@ -44,12 +44,14 @@ try {
       $c = $eqLogic->getCmd('info', $lid);
       return is_object($c) ? $c->execCmd() : '';
     };
+    $reach = $eqLogic->getCmd('info', 'reachable');
     ajax::success(array(
-      'mode'    => $eqLogic->getConfiguration('conn_mode', 'lan'),
-      'online'  => (int)$get('online'),
-      'state'   => (string)$get('printer_state'),
-      'model'   => (string)$get('model'),
-      'hasCam'  => ($eqLogic->getConfiguration('ip', '') !== '' || $eqLogic->getConfiguration('camera_ip', '') !== ''),
+      'mode'      => $eqLogic->getConfiguration('conn_mode', 'lan'),
+      'online'    => (int)$get('online'),
+      'reachable' => is_object($reach) ? (int)$reach->execCmd() : 1,
+      'state'     => (string)$get('printer_state'),
+      'model'     => (string)$get('model'),
+      'hasCam'    => ($eqLogic->getConfiguration('ip', '') !== '' || $eqLogic->getConfiguration('camera_ip', '') !== ''),
     ));
   }
 
