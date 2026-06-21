@@ -9,6 +9,7 @@
 - ☁️ **Mode Cloud BambuLab** : choix LAN ou Cloud à la création de l'équipement (champs adaptés).
   Connexion par compte (email + code de vérification), sélection de l'imprimante liée,
   monitoring et pilotage via MQTT cloud. Widget adapté (badge LAN/Cloud ; caméra/FTPS = LAN seulement).
+  Comptes **Google/Apple/Facebook** : définir un mot de passe sur le compte Bambu, ou coller un jeton d'accès.
   ⚠️ Le pilotage cloud peut être restreint par BambuLab (Bambu Connect).
 
 # 0.3.0 (beta)

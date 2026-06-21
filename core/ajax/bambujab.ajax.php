@@ -42,6 +42,13 @@ try {
     )));
   }
 
+  if (init('action') === 'cloudToken') {
+    ajax::success(bambujab::cloudTool('token', array(
+      'BAMBU_TOKEN'  => init('token'),
+      'BAMBU_REGION' => init('region', 'global'),
+    )));
+  }
+
   if (init('action') === 'listFiles') {
     $eqLogic = bambujab::byId(init('id'));
     if (!is_object($eqLogic)) {

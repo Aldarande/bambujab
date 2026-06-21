@@ -216,6 +216,23 @@ $eqLogics = eqLogic::byType($plugin->getId());
                 <div class="form-group">
                   <div class="col-sm-offset-4 col-sm-6">
                     <button type="button" class="btn btn-primary" id="bjb_cloudLogin"><i class="fas fa-sign-in-alt"></i> {{Se connecter}}</button>
+                    <a class="cursor" id="bjb_cloudSsoToggle" style="margin-left:12px;font-size:.85em;"><i class="fab fa-google"></i> {{Compte Google/Apple/Facebook ?}}</a>
+                  </div>
+                </div>
+                <div id="bjb_cloudSso" style="display:none;">
+                  <div class="alert alert-info" style="margin:0 0 10px;">
+                    <i class="fas fa-info-circle"></i> {{Les comptes créés via Google, Apple ou Facebook n'ont pas de mot de passe Bambu. Deux options :}}
+                    <ul style="margin:6px 0 0;padding-left:18px;">
+                      <li>{{Définissez un mot de passe sur votre compte BambuLab (account.bambulab.com › Sécurité), puis utilisez Email + Mot de passe ci-dessus ;}}</li>
+                      <li>{{ou collez ci-dessous un jeton d'accès (access token) que vous avez récupéré.}}</li>
+                    </ul>
+                  </div>
+                  <div class="form-group">
+                    <label class="col-sm-4 control-label">{{Jeton d'accès}}</label>
+                    <div class="col-sm-6" style="display:flex;gap:8px;">
+                      <input type="password" class="form-control" id="bjb_cloudTokenInput" placeholder="eyJ..." autocomplete="off">
+                      <button type="button" class="btn btn-info" id="bjb_cloudUseToken"><i class="fas fa-key"></i> {{Utiliser}}</button>
+                    </div>
                   </div>
                 </div>
                 <div class="form-group" id="bjb_cloudCodeRow" style="display:none;">

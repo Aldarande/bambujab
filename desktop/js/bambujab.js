@@ -121,6 +121,30 @@ $('body').off('click', '#bjb_cloudVerify').on('click', '#bjb_cloudVerify', funct
   });
 });
 
+/* SSO : afficher le champ jeton + connexion par jeton (Google/Apple/Facebook) */
+$('body').off('click', '#bjb_cloudSsoToggle').on('click', '#bjb_cloudSsoToggle', function () {
+  $('#bjb_cloudSso').slideToggle(150);
+});
+$('body').off('click', '#bjb_cloudUseToken').on('click', '#bjb_cloudUseToken', function () {
+  var token = $('#bjb_cloudTokenInput').val();
+  var region = $('#bjb_cloudRegion').value();
+  if (!token) { $('#div_alert').showAlert({ message: '{{Collez un jeton d\'accès}}', level: 'warning' }); return; }
+  $('#bjb_cloudUseToken').prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i>');
+  $.ajax({
+    type: 'POST', url: 'plugins/bambujab/core/ajax/bambujab.ajax.php',
+    data: { action: 'cloudToken', token: token, region: region }, dataType: 'json',
+    complete: function () { $('#bjb_cloudUseToken').prop('disabled', false).html('<i class="fas fa-key"></i> {{Utiliser}}'); },
+    error: function (req, st, err) { handleAjaxError(req, st, err); },
+    success: function (data) {
+      if (data.state !== 'ok' || !data.result || data.result.ok === false) {
+        $('#div_alert').showAlert({ message: '{{Jeton invalide}} : ' + ((data.result && data.result.error) || ''), level: 'danger' }); return;
+      }
+      bjbCloudFill(data.result);
+      $('#div_alert').showAlert({ message: '{{Jeton accepté. Choisissez votre imprimante puis Sauvegardez.}}', level: 'success' });
+    }
+  });
+});
+
 /* Bouton don */
 $('#bt_donBambuJab').off('click').on('click', function () { $('#modal_donBambuJab').modal('show'); });
 

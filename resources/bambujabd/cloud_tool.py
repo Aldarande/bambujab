@@ -47,6 +47,19 @@ def main():
     elif action == "devices":
         _out(cloud_api.list_devices(os.environ.get("BAMBU_TOKEN", ""), region))
 
+    elif action == "token":
+        # Connexion via un jeton d'accès fourni (comptes SSO Google/Apple/Facebook)
+        tok = os.environ.get("BAMBU_TOKEN", "").strip()
+        if not tok:
+            _out({"ok": False, "error": "Jeton manquant"})
+            return
+        dev = cloud_api.list_devices(tok, region)
+        if not dev.get("ok"):
+            _out({"ok": False, "error": dev.get("error", "Jeton invalide")})
+            return
+        _out({"ok": True, "token": tok, "username": cloud_api.mqtt_username_from_token(tok),
+              "mqtt_host": dev.get("mqtt_host", ""), "devices": dev.get("devices", [])})
+
     else:
         _out({"ok": False, "error": "Action inconnue"})
 
