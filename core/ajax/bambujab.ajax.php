@@ -26,6 +26,15 @@ try {
     ajax::success();
   }
 
+  if (init('action') === 'widget') {
+    $eqLogic = bambujab::byId(init('id'));
+    if (!is_object($eqLogic)) {
+      throw new Exception(__('Équipement introuvable', __FILE__));
+    }
+    // HTML frais du widget (auto-rafraîchissement côté dashboard)
+    ajax::success($eqLogic->toHtml('dashboard'));
+  }
+
   if (init('action') === 'light') {
     $eqLogic = bambujab::byId(init('id'));
     if (!is_object($eqLogic)) {
