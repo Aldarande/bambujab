@@ -193,6 +193,7 @@ class bambujab extends eqLogic {
     $cmd .= ' --callback '   . escapeshellarg($callback);
     $cmd .= ' --pid '        . escapeshellarg($pid_file);
     $cmd .= ' --cycle 0.5';
+    $cmd .= ' --lang '       . escapeshellarg(substr((string)config::byKey('language', 'core', 'fr_FR'), 0, 2));
     $cmd .= ' --loglevel '   . escapeshellarg(log::getLogLevel(__CLASS__));
     $cmd .= ' >> ' . escapeshellarg($log_file) . ' 2>&1 &';
 

@@ -34,6 +34,7 @@ _apikey = ""
 _callback = ""
 _cycle = 0.5
 _pushall_interval = 30  # secondes entre deux pushall (état complet)
+_hms_lang = "fr"        # langue des messages HMS lisibles (base Bambu)
 
 _clients = {}          # instance_id -> BambuMqttClient
 _last_pushall = 0
@@ -55,7 +56,7 @@ jeedom_socket_obj = None
 def on_report(instance_id, report):
     """Callback MQTT : aplatit le report et envoie les changements au PHP."""
     try:
-        severity, messages = hms_map.decode_hms(report)
+        severity, messages = hms_map.decode_hms(report, _hms_lang)
         changes = state_map.map_state(report, hms_severity=severity, hms_messages=messages)
         changes.update(ams_map.map_ams(report))
         if not changes:
@@ -309,6 +310,7 @@ if __name__ == "__main__":
     parser.add_argument("--pid", type=str)
     parser.add_argument("--socketport", type=int)
     parser.add_argument("--instances", type=str, default="[]")
+    parser.add_argument("--lang", type=str, help="Langue des messages HMS (ex. fr, en)")
     parser.add_argument("--discover", action="store_true", help="Découverte LAN puis sortie")
     args = parser.parse_args()
 
@@ -317,6 +319,8 @@ if __name__ == "__main__":
         print(json.dumps(discover(timeout=3), ensure_ascii=False))
         sys.exit(0)
 
+    if args.lang:
+        _hms_lang = args.lang.strip()[:2].lower() or "fr"
     if args.loglevel:
         _log_level = args.loglevel
     if args.callback:

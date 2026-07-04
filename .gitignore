@@ -22,5 +22,6 @@ resources/*venv*/
 *.pyc
 *.pid
 snap_*.jpg
+hms_db_*.json
 docs/_dev/
 *.stackdump
