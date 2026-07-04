@@ -10,7 +10,7 @@ require_once __DIR__ . '/../../../../core/php/core.inc.php';
 
 class bambujab extends eqLogic {
 
-  const DAEMON_PORT_DEFAULT = 55070;
+  const DAEMON_PORT_DEFAULT = 55152;
   const WIDGET_CSS_VERSION = '053'; // bump pour invalider le cache du CSS widget
 
   /* Champs de configuration chiffrés automatiquement (access code = secret). */

@@ -18,7 +18,7 @@ if (!isConnect('admin')) {
         <sup><i class="fas fa-question-circle tooltips" title="{{Port TCP local du démon. À changer uniquement en cas de collision avec un autre plugin.}}"></i></sup>
       </label>
       <div class="col-md-2">
-        <input class="configKey form-control" data-l1key="socketport" placeholder="55070"/>
+        <input class="configKey form-control" data-l1key="socketport" placeholder="55152"/>
       </div>
     </div>
   </fieldset>

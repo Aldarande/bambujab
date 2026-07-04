@@ -27,7 +27,7 @@ from bambu import state_map, ams as ams_map, hms as hms_map, commands as cmd_bui
 # Paramètres par défaut
 # ---------------------------------------------------------------------------
 _log_level = "error"
-_socket_port = 55070
+_socket_port = 55152
 _socket_host = "localhost"
 _pidfile = "/tmp/bambujabd.pid"
 _apikey = ""
