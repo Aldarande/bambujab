@@ -11,7 +11,7 @@ require_once __DIR__ . '/../../../../core/php/core.inc.php';
 class bambujab extends eqLogic {
 
   const DAEMON_PORT_DEFAULT = 55152;
-  const WIDGET_CSS_VERSION = '053'; // bump pour invalider le cache du CSS widget
+  const WIDGET_CSS_VERSION = '054'; // bump pour invalider le cache du CSS widget
 
   /* Champs de configuration chiffrés automatiquement (access code = secret). */
   public static $_encryptConfigKey = array('access_code');
@@ -670,6 +670,14 @@ class bambujab extends eqLogic {
     $hmsBadge = ($hms !== 'Aucune' && $hms !== '')
       ? '<span class="jbb-hms" title="HMS">⚠ ' . htmlspecialchars($hms) . '</span>' : '';
 
+    // Bannière d'erreur : alerte HMS Fatal/Sérieux (erreur d'impression) mise en avant.
+    $hmsMsg = (string)$this->val('hms_messages', '');
+    $errBanner = '';
+    if (in_array($hms, array('Fatal', 'Sérieux'), true)) {
+      $errBanner = '<div class="jbb-err">⚠ <b>' . htmlspecialchars($hms) . '</b> — '
+        . htmlspecialchars($hmsMsg !== '' ? $hmsMsg : __('Erreur signalée par l\'imprimante', __FILE__)) . '</div>';
+    }
+
     // CSS externalisé dans desktop/css/bambujab.css. Sur le dashboard, ce fichier
     // n'est pas chargé automatiquement : on injecte le <link> une seule fois par
     // rendu (drapeau statique) — un éventuel doublon est dédupliqué par le navigateur.
@@ -681,6 +689,7 @@ class bambujab extends eqLogic {
     }
 
     ob_start(); ?>
+<div class="jbb-wrap" id="jbbW<?php echo $id; ?>">
 <div class="jbb-card" data-state="<?php echo htmlspecialchars($state); ?>">
   <?php echo $cssTag; ?>
   <div class="jbb-titlebar">
@@ -690,7 +699,7 @@ class bambujab extends eqLogic {
       <span class="jbb-tool" title="<?php echo __('Caméra (afficher/masquer le flux)', __FILE__); ?>" onclick="(function(){var id=<?php echo $id; ?>;var w=document.getElementById('jbbCamWrap'+id);var i=document.getElementById('jbbCam'+id);if(!w||!i){return;}if((i.getAttribute('src')||'').indexOf('stream.php')===-1){w.style.display='block';i.src='plugins/bambujab/core/php/stream.php?id='+id;}else{i.src='';w.style.display='none';}})();return false;"><i class="fas fa-video"></i></span>
       <?php } ?>
       <a class="jbb-tool" href="https://ko-fi.com/aldarande" target="_blank" rel="noopener" title="<?php echo __('Faire un don', __FILE__); ?>"><i class="fas fa-mug-hot"></i></a>
-      <span class="jbb-tool" title="<?php echo __('Rafraîchir', __FILE__); ?>" onclick="(function(){try{$.ajax({type:'POST',url:'plugins/bambujab/core/ajax/bambujab.ajax.php',data:{action:'pushall',id:<?php echo $id; ?>},dataType:'json'});}catch(e){}})();return false;"><i class="fas fa-sync"></i></span>
+      <span class="jbb-tool" title="<?php echo __('Rafraîchir', __FILE__); ?>" onclick="(function(){var id=<?php echo $id; ?>;try{$.ajax({type:'POST',url:'plugins/bambujab/core/ajax/bambujab.ajax.php',data:{action:'pushall',id:id},dataType:'json'});}catch(e){}setTimeout(function(){try{$.ajax({type:'POST',url:'plugins/bambujab/core/ajax/bambujab.ajax.php',data:{action:'widget',id:id},dataType:'json',success:function(d){if(d&&d.state==='ok'&&d.result){var w=document.getElementById('jbbW'+id);if(w){w.outerHTML=d.result;}}}});}catch(e){}},1300);})();return false;"><i class="fas fa-sync"></i></span>
     </span>
   </div>
   <?php if ($hasCamera) { ?>
@@ -702,6 +711,7 @@ class bambujab extends eqLogic {
       <?php echo $modeBadge; ?><?php echo $sleepBadge; ?><?php echo $hmsBadge; ?></div>
     <span class="jbb-badge" style="background:<?php echo $sc; ?>;"><?php echo htmlspecialchars($state); ?></span>
   </div>
+  <?php echo $errBanner; ?>
   <div class="jbb-barwrap"><div class="jbb-bar" style="width:<?php echo max(0, min(100, $progress)); ?>%;background:<?php echo $sc; ?>;"></div></div>
   <div class="jbb-row">
     <span><?php echo round($progress); ?>% <span class="jbb-stage"><?php echo htmlspecialchars($stage); ?></span></span>
@@ -712,6 +722,8 @@ class bambujab extends eqLogic {
     <div class="jbb-temp"><small>▬ <?php echo __('Plateau', __FILE__); ?></small><b><?php echo round((float)$bed); ?>°</b><small><?php echo $bedT > 0 ? '→ ' . round((float)$bedT) . '°' : ''; ?></small></div>
   </div>
   <div class="jbb-ams"><?php echo $chips; ?></div>
+</div>
+<img alt="" style="display:none" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" onload="(function(){var id=<?php echo $id; ?>;window.jbbT=window.jbbT||{};if(window.jbbT[id]){return;}window.jbbT[id]=setInterval(function(){var c=document.getElementById('jbbCam'+id);if(c&&(''+c.getAttribute('src')).indexOf('stream.php')>-1){return;}try{$.ajax({type:'POST',url:'plugins/bambujab/core/ajax/bambujab.ajax.php',data:{action:'widget',id:id},dataType:'json',success:function(d){if(d&&d.state==='ok'&&d.result){var w=document.getElementById('jbbW'+id);if(w){w.outerHTML=d.result;}}}});}catch(e){}},7000);})();">
 </div>
     <?php
     return ob_get_clean();
