@@ -12,6 +12,29 @@ class bambujab extends eqLogic {
 
   const DAEMON_PORT_DEFAULT = 55152;
   const WIDGET_CSS_VERSION = '054'; // bump pour invalider le cache du CSS widget
+  const ENC_PREFIX = 'enc:';        // marqueur des valeurs de config chiffrées au repos
+
+  // Champs de configuration sensibles chiffrés en base (utils::encrypt).
+  private static $SECRET_KEYS = array('access_code', 'cloud_token');
+
+  /** Chiffre les secrets avant enregistrement (idempotent grâce au marqueur ENC_PREFIX). */
+  public function preSave() {
+    foreach (self::$SECRET_KEYS as $key) {
+      $val = (string)$this->getConfiguration($key, '');
+      if ($val !== '' && strpos($val, self::ENC_PREFIX) !== 0) {
+        $this->setConfiguration($key, self::ENC_PREFIX . utils::encrypt($val));
+      }
+    }
+  }
+
+  /** Lit un secret de config en le déchiffrant si nécessaire (compat valeurs en clair). */
+  private function getSecret($key) {
+    $val = (string)$this->getConfiguration($key, '');
+    if (strpos($val, self::ENC_PREFIX) === 0) {
+      return (string)utils::decrypt(substr($val, strlen(self::ENC_PREFIX)));
+    }
+    return $val;
+  }
 
   /* Champs de configuration chiffrés automatiquement (access code = secret). */
   public static $_encryptConfigKey = array('access_code');
@@ -130,7 +153,7 @@ class bambujab extends eqLogic {
       $serial = trim((string)$eqLogic->getConfiguration('serial', ''));
       if ($mode === 'cloud') {
         // Cloud : token + uid (u_<id>) + broker région ; serial obligatoire (choisi).
-        $token = trim((string)$eqLogic->getConfiguration('cloud_token', ''));
+        $token = trim((string)$eqLogic->getSecret('cloud_token'));
         $user  = trim((string)$eqLogic->getConfiguration('cloud_username', ''));
         $host  = trim((string)$eqLogic->getConfiguration('cloud_mqtt_host', ''));
         if ($token === '' || $user === '' || $host === '' || $serial === '') { continue; }
@@ -148,7 +171,7 @@ class bambujab extends eqLogic {
       } else {
         // LAN : IP + access code ; serial optionnel (auto-découverte).
         $ip   = trim((string)$eqLogic->getConfiguration('ip', ''));
-        $code = trim((string)$eqLogic->getConfiguration('access_code', ''));
+        $code = trim((string)$eqLogic->getSecret('access_code'));
         if ($ip === '' || $code === '') { continue; }
         $instances[] = array(
           'id'          => $eqLogic->getId(),
@@ -367,7 +390,7 @@ class bambujab extends eqLogic {
     // (camera_ip) pour la caméra/FTPS, l'imprimante restant joignable sur le réseau.
     $ip   = trim((string)$this->getConfiguration('ip', ''));
     if ($ip === '') { $ip = trim((string)$this->getConfiguration('camera_ip', '')); }
-    $code = trim((string)$this->getConfiguration('access_code', ''));
+    $code = trim((string)$this->getSecret('access_code'));
     if ($ip === '' || $code === '') {
       throw new Exception(__('IP locale ou code d\'accès manquant (renseignez l\'IP locale pour la caméra)', __FILE__));
     }
