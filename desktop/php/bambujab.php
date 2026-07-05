@@ -265,7 +265,7 @@ include_file('desktop', 'bambujab', 'css', 'bambujab');
                 <input type="hidden" class="eqLogicAttr" id="bjb_cloudUsername" data-l1key="configuration" data-l2key="cloud_username">
                 <input type="hidden" class="eqLogicAttr" id="bjb_cloudMqttHost" data-l1key="configuration" data-l2key="cloud_mqtt_host">
                 <div class="alert alert-warning" style="margin-top:8px;">
-                  <i class="fas fa-info-circle"></i> {{En mode Cloud, le pilotage peut être restreint par BambuLab (Bambu Connect). La caméra reste possible si vous renseignez l'IP locale ci-dessus (le flux passe en local).}}
+                  <i class="fas fa-info-circle"></i> {{En mode Cloud, le pilotage peut être restreint par BambuLab (Bambu Connect). La caméra et les fichiers (liste/envoi) passent par l'IP locale si vous la renseignez ci-dessus (l'imprimante reste sur le réseau) ; le lancement d'impression passe par le cloud.}}
                 </div>
               </div>
             </div>
