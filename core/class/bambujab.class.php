@@ -605,6 +605,11 @@ class bambujab extends eqLogic {
   }
 
   public function toHtml($_version = 'dashboard') {
+    // Type de widget : 'custom' (carte BambuJab, défaut) ou 'standard' (widget Jeedom
+    // natif, entièrement configurable via l'interface de widget de Jeedom).
+    if ($this->getConfiguration('widget_type', 'custom') === 'standard') {
+      return parent::toHtml($_version);
+    }
     $state    = (string)$this->val('printer_state', '—');
     $stage    = (string)$this->val('stage', '');
     $progress = (float)$this->val('progress', 0);
