@@ -15,7 +15,7 @@ class bambujab extends eqLogic {
   const ENC_PREFIX = 'enc:';        // marqueur des valeurs de config chiffrées au repos
 
   // Champs de configuration sensibles chiffrés en base (utils::encrypt).
-  private static $SECRET_KEYS = array('access_code', 'cloud_token');
+  private static $SECRET_KEYS = array('access_code', 'cloud_token', 'cloud_refresh_token');
 
   /** Chiffre les secrets avant enregistrement (idempotent grâce au marqueur ENC_PREFIX). */
   public function preSave() {
@@ -72,6 +72,7 @@ class bambujab extends eqLogic {
       'hms_messages'      => array('Alertes HMS',       'string',  '',    'GENERIC_INFO'),
       'camera_on'         => array('Caméra active',     'binary',  '',    'GENERIC_INFO'),
       'reachable'         => array('Joignable (réseau)','binary',  '',    'GENERIC_INFO'),
+      'cloud_token_ok'    => array('Jeton cloud valide','binary',  '',    'GENERIC_INFO'),
     );
   }
 
@@ -457,6 +458,43 @@ class bambujab extends eqLogic {
       throw new Exception(__('Réponse du cloud illisible', __FILE__));
     }
     return $data;
+  }
+
+  /** Cron : vérifie la validité des jetons cloud et les renouvelle (refresh token)
+   *  avant expiration. Sinon, alerte (cloud_token_ok = 0) pour éviter une panne
+   *  silencieuse quand le jeton Bambu expire (~3 mois). */
+  public static function cronCloudToken() {
+    foreach (eqLogic::byType(__CLASS__) as $eqLogic) {
+      if (!$eqLogic->getIsEnable()) { continue; }
+      if ($eqLogic->getConfiguration('conn_mode', 'lan') !== 'cloud') { continue; }
+      $token  = trim((string)$eqLogic->getSecret('cloud_token'));
+      $region = $eqLogic->getConfiguration('cloud_region', 'global');
+      if ($token === '') { continue; }
+
+      $res = self::cloudTool('check', array('BAMBU_TOKEN' => $token, 'BAMBU_REGION' => $region));
+      $valid = $res['valid'] ?? null;
+      if ($valid === true) { $eqLogic->checkAndUpdateCmd('cloud_token_ok', 1); continue; }
+      if ($valid === null)  { continue; } // réseau incertain : on ne conclut rien
+
+      // Jeton expiré -> tenter un renouvellement via le refresh token
+      $refresh = trim((string)$eqLogic->getSecret('cloud_refresh_token'));
+      if ($refresh !== '') {
+        $r = self::cloudTool('refresh', array('BAMBU_REFRESH' => $refresh, 'BAMBU_REGION' => $region));
+        if (!empty($r['ok']) && !empty($r['token'])) {
+          $eqLogic->setConfiguration('cloud_token', $r['token']); // preSave chiffrera au save()
+          if (!empty($r['refresh']))  { $eqLogic->setConfiguration('cloud_refresh_token', $r['refresh']); }
+          if (!empty($r['username'])) { $eqLogic->setConfiguration('cloud_username', $r['username']); }
+          $eqLogic->save(); // preSave (chiffrement) + postSave (redémarre le démon via signature)
+          $eqLogic->checkAndUpdateCmd('cloud_token_ok', 1);
+          log::add(__CLASS__, 'info', 'bambujab.class.php::cronCloudToken() — jeton cloud renouvelé pour #' . $eqLogic->getId());
+          continue;
+        }
+      }
+      // Pas de renouvellement possible -> alerte
+      $eqLogic->checkAndUpdateCmd('cloud_token_ok', 0);
+      log::add(__CLASS__, 'warning', 'bambujab.class.php::cronCloudToken() — jeton cloud expiré pour #'
+        . $eqLogic->getId() . ' : reconnexion requise (Ajouter/rouvrir l\'équipement, mode Cloud).');
+    }
   }
 
   /** Capture une image de la caméra (best-effort P1/A1). Retourne le chemin du JPEG. */

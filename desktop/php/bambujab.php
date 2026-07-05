@@ -261,6 +261,7 @@ include_file('desktop', 'bambujab', 'css', 'bambujab');
                 </div>
                 <!-- champs cachés persistés -->
                 <input type="hidden" class="eqLogicAttr" id="bjb_cloudToken" data-l1key="configuration" data-l2key="cloud_token">
+                <input type="hidden" class="eqLogicAttr" id="bjb_cloudRefresh" data-l1key="configuration" data-l2key="cloud_refresh_token">
                 <input type="hidden" class="eqLogicAttr" id="bjb_cloudUsername" data-l1key="configuration" data-l2key="cloud_username">
                 <input type="hidden" class="eqLogicAttr" id="bjb_cloudMqttHost" data-l1key="configuration" data-l2key="cloud_mqtt_host">
                 <div class="alert alert-warning" style="margin-top:8px;">

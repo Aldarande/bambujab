@@ -66,11 +66,13 @@ function bjbRefreshStatus(id) {
       var reach = (parseInt(r.reachable, 10) !== 0);
       var mode = (r.mode === 'cloud') ? '☁️ {{Cloud}}' : '🏠 {{LAN (local)}}';
       var dot = on ? '🟢 {{En ligne}}' : (reach ? '💤 {{En veille}}' : '🔌 {{Éteinte}}');
-      var cls = on ? 'alert-success' : (reach ? 'alert-info' : 'alert-danger');
+      var tokenWarn = (r.mode === 'cloud' && parseInt(r.tokenOk, 10) === 0);
+      var cls = tokenWarn ? 'alert-warning' : (on ? 'alert-success' : (reach ? 'alert-info' : 'alert-danger'));
       var extra = (r.model ? ' · ' + r.model : '') + (r.state ? ' · ' + r.state : '');
+      var warn = tokenWarn ? ' &nbsp;·&nbsp; ⚠️ {{Jeton cloud à renouveler (rouvrez l\'équipement)}}' : '';
       $b.removeClass('alert-success alert-warning alert-info alert-danger')
         .addClass(cls)
-        .html('<b>' + mode + '</b> &nbsp;·&nbsp; ' + dot + extra).show();
+        .html('<b>' + mode + '</b> &nbsp;·&nbsp; ' + dot + extra + warn).show();
     }
   });
 }
@@ -86,6 +88,7 @@ function bjbCloudEnv() {
 function bjbCloudFill(data) {
   // Remplit le sélecteur d'imprimantes et stocke le jeton
   $('#bjb_cloudToken').value(data.token || '');
+  $('#bjb_cloudRefresh').value(data.refresh || '');
   $('#bjb_cloudUsername').value(data.username || '');
   $('#bjb_cloudMqttHost').value(data.mqtt_host || '');
   var sel = $('#bjb_cloudDevice'); sel.empty();
