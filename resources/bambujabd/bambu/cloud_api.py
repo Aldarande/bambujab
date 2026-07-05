@@ -79,7 +79,8 @@ def login(email, password, region="global"):
     data = r.json() if r.content else {}
     token = data.get("accessToken") or ""
     if token:
-        return {"status": "ok", "token": token, "username": resolve_username(token, region)}
+        return {"status": "ok", "token": token, "refresh": data.get("refreshToken") or "",
+                "username": resolve_username(token, region)}
 
     login_type = (data.get("loginType") or "").lower()
     # Code email requis : on déclenche l'envoi du code
@@ -120,7 +121,41 @@ def login_with_code(email, code, region="global"):
     token = data.get("accessToken") or ""
     if not token:
         return {"status": "error", "error": "Code invalide ou expiré"}
-    return {"status": "ok", "token": token, "username": resolve_username(token, region)}
+    return {"status": "ok", "token": token, "refresh": data.get("refreshToken") or "",
+            "username": resolve_username(token, region)}
+
+
+def check_token(token, region="global"):
+    """Valide un jeton d'accès. Retourne True (valide), False (expiré/401), None (indéterminé)."""
+    base, _ = _region(region)
+    try:
+        r = requests.get(base + "/v1/design-user-service/my/preference",
+                        headers=_headers(token), timeout=TIMEOUT)
+        if r.status_code == 200:
+            return True
+        if r.status_code in (401, 403):
+            return False
+        return None
+    except Exception:
+        return None
+
+
+def refresh_token(refresh, region="global"):
+    """Renouvelle le jeton via le refresh token. Retourne {ok, token, refresh, username}."""
+    base, _ = _region(region)
+    try:
+        r = requests.post(base + "/v1/user-service/user/refreshtoken",
+                         json={"refreshToken": refresh}, headers=_headers(), timeout=TIMEOUT)
+    except Exception as e:
+        return {"ok": False, "error": str(e)}
+    if r.status_code not in (200, 201):
+        return {"ok": False, "error": "HTTP %s" % r.status_code}
+    d = r.json() if r.content else {}
+    tok = d.get("accessToken") or ""
+    if not tok:
+        return {"ok": False, "error": "Réponse sans accessToken"}
+    return {"ok": True, "token": tok, "refresh": d.get("refreshToken") or refresh,
+            "username": resolve_username(tok, region)}
 
 
 def list_devices(token, region="global"):

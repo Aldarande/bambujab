@@ -30,7 +30,8 @@ def main():
             _out({"ok": True, "need_code": True})
         elif res.get("status") == "ok":
             dev = cloud_api.list_devices(res["token"], region)
-            _out({"ok": True, "token": res["token"], "username": res["username"],
+            _out({"ok": True, "token": res["token"], "refresh": res.get("refresh", ""),
+                  "username": res["username"],
                   "mqtt_host": dev.get("mqtt_host", ""), "devices": dev.get("devices", [])})
         else:
             _out({"ok": False, "error": res.get("error", "Échec du login")})
@@ -39,13 +40,21 @@ def main():
         res = cloud_api.login_with_code(email, os.environ.get("BAMBU_CODE", ""), region)
         if res.get("status") == "ok":
             dev = cloud_api.list_devices(res["token"], region)
-            _out({"ok": True, "token": res["token"], "username": res["username"],
+            _out({"ok": True, "token": res["token"], "refresh": res.get("refresh", ""),
+                  "username": res["username"],
                   "mqtt_host": dev.get("mqtt_host", ""), "devices": dev.get("devices", [])})
         else:
             _out({"ok": False, "error": res.get("error", "Code invalide")})
 
     elif action == "devices":
         _out(cloud_api.list_devices(os.environ.get("BAMBU_TOKEN", ""), region))
+
+    elif action == "check":
+        valid = cloud_api.check_token(os.environ.get("BAMBU_TOKEN", ""), region)
+        _out({"ok": True, "valid": valid})
+
+    elif action == "refresh":
+        _out(cloud_api.refresh_token(os.environ.get("BAMBU_REFRESH", ""), region))
 
     elif action == "token":
         # Connexion via un jeton d'accès fourni (comptes SSO Google/Apple/Facebook)

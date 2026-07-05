@@ -54,6 +54,7 @@ try {
       return is_object($c) ? $c->execCmd() : '';
     };
     $reach = $eqLogic->getCmd('info', 'reachable');
+    $tokCmd = $eqLogic->getCmd('info', 'cloud_token_ok');
     ajax::success(array(
       'mode'      => $eqLogic->getConfiguration('conn_mode', 'lan'),
       'online'    => (int)$get('online'),
@@ -61,6 +62,7 @@ try {
       'state'     => (string)$get('printer_state'),
       'model'     => (string)$get('model'),
       'hasCam'    => ($eqLogic->getConfiguration('ip', '') !== '' || $eqLogic->getConfiguration('camera_ip', '') !== ''),
+      'tokenOk'   => is_object($tokCmd) ? (int)$tokCmd->execCmd() : 1,
     ));
   }
 
