@@ -281,6 +281,19 @@ include_file('desktop', 'bambujab', 'css', 'bambujab');
               </div>
               </div>
 
+              <legend style="margin-top:14px;"><i class="fas fa-desktop"></i> {{Affichage}}</legend>
+              <div class="form-group">
+                <label class="col-sm-4 control-label">{{Type de widget}}
+                  <sup><i class="fas fa-question-circle tooltips" title="{{Carte BambuJab : affichage dédié (progression, AMS, caméra…). Widget Jeedom standard : configurable via l'interface de widget de Jeedom (choix des commandes, widgets par commande, couleurs).}}"></i></sup>
+                </label>
+                <div class="col-sm-6">
+                  <select class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="widget_type">
+                    <option value="custom">{{Carte BambuJab (dédiée)}}</option>
+                    <option value="standard">{{Widget Jeedom standard (configurable)}}</option>
+                  </select>
+                </div>
+              </div>
+
               <legend style="margin-top:14px;"><i class="fas fa-info"></i> {{Informations}}</legend>
               <div class="form-group">
                 <label class="col-sm-4 control-label">{{Description}}</label>
