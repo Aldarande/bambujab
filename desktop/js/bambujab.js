@@ -37,11 +37,13 @@ function bjbApplyConnMode() {
   var mode = $('#bjb_connMode').value() || 'lan';
   if (mode === 'cloud') {
     $('#bjb_lanFields').hide(); $('#bjb_cloudFields').show();
-    $('#bjb_camSection').hide(); $('#bjb_btnFiles').hide();
   } else {
     $('#bjb_lanFields').show(); $('#bjb_cloudFields').hide();
-    $('#bjb_camSection').show(); $('#bjb_btnFiles').show();
   }
+  // Caméra et Fichiers restent disponibles dans les deux modes : ils passent en
+  // local via l'IP (LAN) ou l'IP locale de la caméra (Cloud). Ils gèrent proprement
+  // l'absence d'IP locale (message d'erreur clair).
+  $('#bjb_camSection').show(); $('#bjb_btnFiles').show();
 }
 $('body').off('change', '#bjb_connMode').on('change', '#bjb_connMode', bjbApplyConnMode);
 // Appliqué aussi après le rendu de l'équipement (mode + bandeau de statut)

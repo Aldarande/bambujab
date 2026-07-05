@@ -20,11 +20,13 @@ Ordre de priorité défini avec l'auteur. Version courante : **0.6.0-beta**.
 - Détecter l'expiration (erreur d'auth MQTT/API) et **renouveler** le token (refresh token si disponible, sinon inviter à se reconnecter).
 - Cmd/alerte « jeton cloud à renouveler » + log clair.
 
-## 🎯 Priorité 3 — Fichiers & impression à distance en Cloud (#1)
-**Câbler l'upload et le lancement d'impression via le cloud.**
-- Upload via **URL signée S3** (`get_upload_url` + PUT), liste des fichiers cloud, `start_cloud_print`.
-- Unifier l'UI « Fichiers » pour qu'elle fonctionne en LAN (FTPS) **et** en Cloud.
-- Assumer la dépendance ACS (contrôle d'autorisation Bambu) et le documenter.
+## ✅ Priorité 3 — Fichiers & impression en Cloud (#1) — FAIT (voie locale)
+- **Fichiers (liste/envoi)** disponibles en mode Cloud via l'**IP locale** (FTPS), comme la caméra —
+  l'imprimante reste joignable sur le réseau. Validé : 274 fichiers listés en cloud.
+- **Lancement d'impression** via **MQTT cloud** (best-effort, dépendant de l'ACS Bambu).
+- **Limite** : le pur distant (imprimante hors du réseau de Jeedom) nécessiterait l'**upload S3 cloud**
+  (endpoints non officiels, non documentés publiquement, soumis à l'ACS) — reporté tant que la voie
+  locale couvre le besoin courant.
 
 ## Ensuite (dans l'ordre)
 
