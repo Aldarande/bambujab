@@ -33,9 +33,11 @@ Ordre de priorité défini avec l'auteur. Version courante : **0.6.0-beta**.
 ### 4. ✅ Boutons d'action dans le widget
 Pause / Reprise / Stop (confirmation) affichés dans le widget pendant l'impression.
 
-### 5. ⏸️ Vignette du modèle en cours (reporté)
-La miniature n'est pas dans le report MQTT ; il faudrait extraire `Metadata/plate_1.png`
-du `.3mf` via FTPS (dézippage) — fragile. Reporté (best-effort ultérieur).
+### 5. ✅ Vignette du modèle en cours
+Aperçu du plateau extrait du `.3mf` : **téléchargement partiel** (les images sont au tout
+début du fichier) + lecture directe de `Metadata/plate_1_small.png` (parsing des entêtes
+ZIP locaux, pas de sommaire de fin). Identifie le `.3mf` par le nom du job. Caché par job,
+affiché dans le widget. **LAN & Cloud** (via l'IP locale). Validé : PNG 128×128 extrait.
 
 ### 6. ✅ Types génériques Jeedom
 Températures en `TEMPERATURE`, progression avec unité `%`.
