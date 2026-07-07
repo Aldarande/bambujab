@@ -11,7 +11,7 @@ require_once __DIR__ . '/../../../../core/php/core.inc.php';
 class bambujab extends eqLogic {
 
   const DAEMON_PORT_DEFAULT = 55152;
-  const WIDGET_CSS_VERSION = '055'; // bump pour invalider le cache du CSS widget
+  const WIDGET_CSS_VERSION = '056'; // bump pour invalider le cache du CSS widget
   const ENC_PREFIX = 'enc:';        // marqueur des valeurs de config chiffrées au repos
 
   // Champs de configuration sensibles chiffrés en base (utils::encrypt).
@@ -519,6 +519,36 @@ class bambujab extends eqLogic {
     return $out;
   }
 
+  /** Vignette (aperçu du plateau) de l'impression en cours, extraite du .3mf via FTPS
+   *  (partiel). Mise en cache par job. Retourne le chemin du PNG. LAN & Cloud (IP locale). */
+  public function getThumbnail() {
+    $jobCmd = $this->getCmd('info', 'job_name');
+    $job = is_object($jobCmd) ? trim((string)$jobCmd->execCmd()) : '';
+    if ($job === '') { throw new Exception(__('Aucune impression en cours', __FILE__)); }
+    $python = __DIR__ . '/../../resources/venv/bin/python3';
+    $tool   = __DIR__ . '/../../resources/bambujabd/thumb_tool.py';
+    if (!file_exists($python) || !file_exists($tool)) {
+      throw new Exception(__('Dépendances non installées', __FILE__));
+    }
+    $dir = jeedom::getTmpFolder('bambujab');
+    if (!is_dir($dir)) { @mkdir($dir, 0775, true); }
+    $out = $dir . '/thumb_' . $this->getId() . '.png';
+    // Cache : ne re-télécharge que si le job a changé
+    $metaKey = 'bambujab::thumbjob::' . $this->getId();
+    if (file_exists($out) && is_readable($out) && cache::byKey($metaKey)->getValue('') === $job) {
+      return $out;
+    }
+    if (file_exists($out) && !is_writable($out)) { @unlink($out); }
+    $cmd = $this->ftpEnvPrefix() . 'BAMBU_JOB=' . escapeshellarg($job) . ' timeout 25 '
+         . escapeshellarg($python) . ' ' . escapeshellarg($tool) . ' ' . escapeshellarg($out) . ' 2>/dev/null';
+    $res = json_decode(trim((string)shell_exec($cmd)), true);
+    if (!is_array($res) || empty($res['ok']) || !file_exists($out)) {
+      throw new Exception(__('Vignette indisponible', __FILE__) . ' : ' . ($res['error'] ?? '—'));
+    }
+    cache::set($metaKey, $job, 86400 * 30);
+    return $out;
+  }
+
   /** Flux MJPEG continu (multipart) — diffuse les images du port 6000 vers la sortie HTTP.
    *  Appelé par core/php/stream.php après envoi de l'en-tête multipart. Bloque jusqu'à
    *  déconnexion du client (passthru -> SIGPIPE sur le process Python). */
@@ -675,6 +705,15 @@ class bambujab extends eqLogic {
     if ($camIp === '') { $camIp = trim((string)$this->getConfiguration('camera_ip', '')); }
     $hasCamera = ($camIp !== '' && trim((string)$this->getConfiguration('access_code', '')) !== '');
     if (!$hasCamera) { $cameraOn = 0; }
+    // Vignette (aperçu du plateau) : dispo si accès local (FTPS) + une impression avec job.
+    $jobName = (string)$this->val('job_name', '');
+    // Vignette affichée dès qu'un job est connu (impression en cours ou dernier job)
+    // et que l'imprimante est joignable en local (FTPS).
+    $showThumb = ($hasCamera && $jobName !== '' && $online === 1);
+    $thumbTag = $showThumb
+      ? '<div class="jbb-thumb"><img src="plugins/bambujab/core/php/thumb.php?id=' . $id . '&j=' . substr(md5($jobName), 0, 8)
+        . '" alt="" onerror="this.parentNode.style.display=\'none\'"></div>'
+      : '';
     $modeBadge = ($mode === 'cloud')
       ? '<span class="jbb-mode" title="Cloud BambuLab">☁ Cloud</span>'
       : '<span class="jbb-mode" title="Réseau local">🏠 LAN</span>';
@@ -783,6 +822,7 @@ class bambujab extends eqLogic {
     <span class="jbb-badge" style="background:<?php echo $sc; ?>;"><?php echo htmlspecialchars($state); ?></span>
   </div>
   <?php echo $errBanner; ?>
+  <?php echo $thumbTag; ?>
   <div class="jbb-barwrap"><div class="jbb-bar" style="width:<?php echo max(0, min(100, $progress)); ?>%;background:<?php echo $sc; ?>;"></div></div>
   <div class="jbb-row">
     <span><?php echo round($progress); ?>% <span class="jbb-stage"><?php echo htmlspecialchars($stage); ?></span></span>
