@@ -11,7 +11,7 @@ require_once __DIR__ . '/../../../../core/php/core.inc.php';
 class bambujab extends eqLogic {
 
   const DAEMON_PORT_DEFAULT = 55152;
-  const WIDGET_CSS_VERSION = '056'; // bump pour invalider le cache du CSS widget
+  const WIDGET_CSS_VERSION = '057'; // bump pour invalider le cache du CSS widget
   const ENC_PREFIX = 'enc:';        // marqueur des valeurs de config chiffrées au repos
 
   // Champs de configuration sensibles chiffrés en base (utils::encrypt).
@@ -806,7 +806,7 @@ class bambujab extends eqLogic {
     <a class="jbb-name" href="index.php?v=d&p=bambujab&m=bambujab&id=<?php echo $id; ?>" title="<?php echo __('Ouvrir la configuration', __FILE__); ?>"><?php echo htmlspecialchars($this->getName()); ?></a>
     <span class="jbb-tools">
       <?php if ($hasCamera) { ?>
-      <span class="jbb-tool" title="<?php echo __('Caméra (afficher/masquer le flux)', __FILE__); ?>" onclick="(function(){var id=<?php echo $id; ?>;var w=document.getElementById('jbbCamWrap'+id);var i=document.getElementById('jbbCam'+id);if(!w||!i){return;}if((i.getAttribute('src')||'').indexOf('stream.php')===-1){w.style.display='block';i.src='plugins/bambujab/core/php/stream.php?id='+id;}else{i.src='';w.style.display='none';}})();return false;"><i class="fas fa-video"></i></span>
+      <span class="jbb-tool jbb-camtoggle<?php echo $cameraOn === 1 ? ' jbb-on' : ''; ?>" title="<?php echo __('Caméra : allumer / éteindre le flux', __FILE__); ?>" onclick="(function(el){var id=<?php echo $id; ?>;var w=document.getElementById('jbbCamWrap'+id);var i=document.getElementById('jbbCam'+id);if(!w||!i){return;}var on=(i.getAttribute('src')||'').indexOf('stream.php')!==-1;if(on){i.src='';w.style.display='none';el.classList.remove('jbb-on');}else{w.style.display='block';i.src='plugins/bambujab/core/php/stream.php?id='+id;el.classList.add('jbb-on');}})(this);return false;"><i class="fas fa-video"></i></span>
       <?php } ?>
       <a class="jbb-tool" href="https://ko-fi.com/aldarande" target="_blank" rel="noopener" title="<?php echo __('Faire un don', __FILE__); ?>"><i class="fas fa-mug-hot"></i></a>
       <span class="jbb-tool" title="<?php echo __('Rafraîchir', __FILE__); ?>" onclick="(function(){var id=<?php echo $id; ?>;try{$.ajax({type:'POST',url:'plugins/bambujab/core/ajax/bambujab.ajax.php',data:{action:'pushall',id:id},dataType:'json'});}catch(e){}setTimeout(function(){try{$.ajax({type:'POST',url:'plugins/bambujab/core/ajax/bambujab.ajax.php',data:{action:'widget',id:id},dataType:'json',success:function(d){if(d&&d.state==='ok'&&d.result){var w=document.getElementById('jbbW'+id);if(w){w.outerHTML=d.result;}}}});}catch(e){}},1300);})();return false;"><i class="fas fa-sync"></i></span>
