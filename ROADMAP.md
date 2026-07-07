@@ -30,34 +30,38 @@ Ordre de priorité défini avec l'auteur. Version courante : **0.6.0-beta**.
 
 ## Ensuite (dans l'ordre)
 
-### 4. Boutons d'action dans le widget
-Pause / Reprise / Stop (confirmation pour Stop), en plus de l'ampoule.
+### 4. ✅ Boutons d'action dans le widget
+Pause / Reprise / Stop (confirmation) affichés dans le widget pendant l'impression.
 
-### 5. Vignette du modèle en cours
-Afficher l'aperçu du plateau (image embarquée par Bambu) dans le widget.
+### 5. ⏸️ Vignette du modèle en cours (reporté)
+La miniature n'est pas dans le report MQTT ; il faudrait extraire `Metadata/plate_1.png`
+du `.3mf` via FTPS (dézippage) — fragile. Reporté (best-effort ultérieur).
 
-### 6. Types génériques Jeedom
-Températures en `TEMPERATURE`, progression en pourcentage, etc. → widgets natifs + historisation/courbes.
+### 6. ✅ Types génériques Jeedom
+Températures en `TEMPERATURE`, progression avec unité `%`.
 
-### 7. Gestion des erreurs d'impression — messages lisibles
+### 7. ✅ Gestion des erreurs d'impression — messages lisibles
 - Résoudre les **codes HMS** en **texte humain** (base HMS Bambu / wiki `ha-bambulab`), au lieu du code brut.
 - Événement/déclencheur dédié « erreur d'impression » et « impression terminée » exploitable en scénario.
 - (Les codes + sévérité sont déjà remontés dans `hms_severity` / `hms_messages` : notification possible dès maintenant via scénario.)
 
-### 8. Flux caméra multi-spectateurs
-Proxy partagé (1 connexion imprimante redistribuée à N spectateurs) + coupure auto après X min d'inactivité.
+### 8. ⏸️ Flux caméra multi-spectateurs (reporté)
+Proxy partagé (1 connexion redistribuée à N spectateurs) + coupure auto. Reporté : le
+modèle actuel (1 flux/spectateur + garde-fou 10 min) suffit à l'usage domestique.
 
-### 9. Documentation en ligne
-Publier `aldarande.github.io/bambujab` (GitHub Pages) pour que les liens de doc du plugin résolvent.
+### 9. 🟡 Documentation en ligne (config prête)
+Config Jekyll (`docs/_config.yml` + `docs/index.md`) en place. **Action utilisateur** :
+GitHub → Settings › Pages › Deploy from a branch → `main` /docs.
 
-### 10. Traductions complètes
-Compléter de/it/es (docs et i18n) au niveau de fr/en.
+### 10. 🟡 Traductions complètes (docs ✅, i18n UI à compléter)
+Docs de/it/es faites. Les chaînes UI (`{{…}}`) restent à traduire — volume important,
+idéalement avec l'aide de la communauté.
 
-### 11. Intégration continue GitHub
-Workflow CI : `php -l` + `py_compile` (+ prettier) à chaque push.
+### 11. ✅ Intégration continue GitHub
+Workflow `.github/workflows/ci.yml` : `php -l` + `py_compile` + validation `info.json`.
 
-### 12. Release & Market
-Tag `v0.6.0`, icône dédiée, soumission au Market Jeedom.
+### 12. ✅ Release
+Tag `v0.7.0` publié. Reste : icône dédiée (placeholder en place) + soumission Market Jeedom (action utilisateur).
 
-### 13. Historisation
-Activer l'historique sur progression / températures pour les graphiques Jeedom.
+### 13. ✅ Historisation
+Historique activé sur progression et températures (courbes Jeedom).
