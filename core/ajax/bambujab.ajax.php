@@ -35,6 +35,19 @@ try {
     ajax::success($eqLogic->toHtml('dashboard'));
   }
 
+  if (init('action') === 'doAction') {
+    $eqLogic = bambujab::byId(init('id'));
+    if (!is_object($eqLogic)) {
+      throw new Exception(__('Équipement introuvable', __FILE__));
+    }
+    $a = init('cmd');
+    if (!in_array($a, array('pause', 'resume', 'stop', 'home'), true)) {
+      throw new Exception(__('Action non autorisée', __FILE__));
+    }
+    $eqLogic->control($a);
+    ajax::success();
+  }
+
   if (init('action') === 'light') {
     $eqLogic = bambujab::byId(init('id'));
     if (!is_object($eqLogic)) {

@@ -11,7 +11,7 @@ require_once __DIR__ . '/../../../../core/php/core.inc.php';
 class bambujab extends eqLogic {
 
   const DAEMON_PORT_DEFAULT = 55152;
-  const WIDGET_CSS_VERSION = '054'; // bump pour invalider le cache du CSS widget
+  const WIDGET_CSS_VERSION = '055'; // bump pour invalider le cache du CSS widget
   const ENC_PREFIX = 'enc:';        // marqueur des valeurs de config chiffrées au repos
 
   // Champs de configuration sensibles chiffrés en base (utils::encrypt).
@@ -565,6 +565,10 @@ class bambujab extends eqLogic {
       $cmd->setSubType($def[1]);
       if ($def[2] !== '') { $cmd->setUnite($def[2]); }
       $cmd->setGeneric_type($def[3]);
+      // Historisation des grandeurs utiles aux courbes (progression, températures)
+      if (in_array($logicalId, array('progress', 'nozzle_temp', 'bed_temp', 'chamber_temp'), true)) {
+        $cmd->setIsHistorized(1);
+      }
       $cmd->save();
     }
 
@@ -784,6 +788,21 @@ class bambujab extends eqLogic {
     <span><?php echo round($progress); ?>% <span class="jbb-stage"><?php echo htmlspecialchars($stage); ?></span></span>
     <span><?php if ($total > 0) { echo __('Couche', __FILE__) . ' ' . $layer . '/' . $total; } ?><?php if ($rt !== '') { echo ' · ⏱ ' . $rt; } ?></span>
   </div>
+  <?php
+  // Boutons de pilotage : pause/reprise + stop selon l'état d'impression.
+  $doAct = function ($cmd) use ($id) {
+    return "try{\$.ajax({type:'POST',url:'plugins/bambujab/core/ajax/bambujab.ajax.php',data:{action:'doAction',cmd:'" . $cmd . "',id:" . $id . "},dataType:'json'});}catch(e){}";
+  };
+  if ($state === 'Impression' || $state === 'En pause') { ?>
+  <div class="jbb-ctrl">
+    <?php if ($state === 'Impression') { ?>
+      <span class="jbb-abtn" onclick="(function(){<?php echo $doAct('pause'); ?>})();return false;">⏸ <?php echo __('Pause', __FILE__); ?></span>
+    <?php } else { ?>
+      <span class="jbb-abtn" onclick="(function(){<?php echo $doAct('resume'); ?>})();return false;">▶ <?php echo __('Reprendre', __FILE__); ?></span>
+    <?php } ?>
+    <span class="jbb-abtn jbb-stop" onclick="(function(){if(!confirm('<?php echo __('Arrêter l\'impression ?', __FILE__); ?>'))return;<?php echo $doAct('stop'); ?>})();return false;">⏹ <?php echo __('Arrêter', __FILE__); ?></span>
+  </div>
+  <?php } ?>
   <div class="jbb-temps">
     <div class="jbb-temp"><small>🔥 <?php echo __('Buse', __FILE__); ?></small><b><?php echo round((float)$nozzle); ?>°</b><small><?php echo $nozzleT > 0 ? '→ ' . round((float)$nozzleT) . '°' : ''; ?></small></div>
     <div class="jbb-temp"><small>▬ <?php echo __('Plateau', __FILE__); ?></small><b><?php echo round((float)$bed); ?>°</b><small><?php echo $bedT > 0 ? '→ ' . round((float)$bedT) . '°' : ''; ?></small></div>
