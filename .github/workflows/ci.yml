@@ -1,0 +1,33 @@
+name: CI
+
+on:
+  push:
+    branches: [works, dev, main]
+  pull_request:
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.1'
+
+      - name: PHP lint (php -l)
+        run: |
+          err=0
+          for f in $(find core desktop plugin_info -name '*.php'); do
+            php -l "$f" > /dev/null || { echo "SYNTAX ERROR: $f"; err=1; }
+          done
+          exit $err
+
+      - name: Python compile (py_compile)
+        run: |
+          python3 -m py_compile $(find resources/bambujabd -name '*.py')
+
+      - name: JSON valid (info.json)
+        run: |
+          python3 -c "import json,sys; json.load(open('plugin_info/info.json')); print('info.json OK')"

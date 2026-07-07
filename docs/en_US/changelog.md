@@ -4,6 +4,16 @@
 >
 >If there is no information about an update, it only concerns documentation, translation or text.
 
+# 0.7.0 (beta)
+
+- ⚠️ **Human-readable print errors**: HMS codes resolved to messages (Bambu database) + error banner in the widget.
+- 🔒 **Encryption at rest** of secrets (access code, cloud tokens).
+- 🔁 **Automatic cloud token refresh** (cron) + alert before failure.
+- 🧩 **Selectable widget type**: BambuJab card or standard (configurable) Jeedom widget.
+- 📁 **Files & printing in Cloud mode** (via local IP); camera too.
+- ▶️⏸️⏹️ **Pause/resume/stop buttons** directly in the widget; widget **auto-refresh**.
+- 📈 **History** on progress and temperatures. Continuous integration (CI) added.
+
 # 0.6.0 (beta)
 
 - 📷 **Live video stream (MJPEG)** from the camera in the widget (persistent connection, ~1 fps A1/P1), instead of frozen snapshots.

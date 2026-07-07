@@ -4,6 +4,16 @@
 >
 >S'il n'y a pas d'information sur la mise à jour, c'est qu'elle concerne uniquement de la documentation, une traduction ou du texte.
 
+# 0.7.0 (beta)
+
+- ⚠️ **Erreurs d'impression en clair** : les codes HMS sont traduits en messages lisibles (base Bambu) + bannière d'erreur dans le widget.
+- 🔒 **Chiffrement au repos** des secrets (code d'accès, jetons cloud).
+- 🔁 **Rafraîchissement automatique du jeton cloud** (cron) + alerte avant panne.
+- 🧩 **Type de widget au choix** : carte BambuJab ou widget Jeedom standard (configurable).
+- 📁 **Fichiers & impression en mode Cloud** (via l'IP locale) ; caméra aussi.
+- ▶️⏸️⏹️ **Boutons pause/reprise/arrêt** directement dans le widget ; **auto-rafraîchissement** du widget.
+- 📈 **Historisation** de la progression et des températures. Intégration continue (CI) ajoutée.
+
 # 0.6.0 (beta)
 
 - 📷 **Flux vidéo live (MJPEG)** de la caméra dans le widget (connexion persistante, ~1 fps A1/P1), au lieu d'images figées.
