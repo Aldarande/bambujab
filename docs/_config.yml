@@ -1,0 +1,5 @@
+title: BambuJab
+description: Plugin Jeedom — surveillance et pilotage des imprimantes 3D BambuLab (LAN & Cloud)
+theme: jekyll-theme-cayman
+# Les pages de doc sont dans docs/<langue>/index.md et changelog.md.
+# GitHub Pages : Settings › Pages › Source « Deploy from a branch » › branche main › dossier /docs.
