@@ -4,6 +4,10 @@
 >
 >If there is no information about an update, it only concerns documentation, translation or text.
 
+# 0.7.1 (beta)
+
+- 🐛 **Fix**: SQL error (`Unknown column 'SECRET_KEYS'`) preventing equipment creation on some installations.
+
 # 0.7.0 (beta)
 
 - ⚠️ **Human-readable print errors**: HMS codes resolved to messages (Bambu database) + error banner in the widget.
