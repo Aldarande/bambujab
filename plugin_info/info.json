@@ -1,7 +1,7 @@
 {
   "id": "bambujab",
   "name": "BambuJab",
-  "description": "Surveillance et pilotage des imprimantes 3D BambuLab sur le réseau local (LAN-only) : états, AMS, filaments, étapes d'impression.",
+  "description": "Surveillance et pilotage des imprimantes 3D BambuLab (X1/P1/A1) en LAN ou via le Cloud : états, AMS/filaments, étapes d'impression, caméra live, vignettes, gestion de fichiers et erreurs traduites en clair.",
   "licence": "AGPL v3",
   "author": "Aldarande",
   "require": "4.4.0",
