@@ -4,6 +4,10 @@
 >
 >If there is no information about an update, it only concerns documentation, translation or text.
 
+# 0.7.4 (beta)
+
+- 🐛 **Display fix**: the widget card could stretch across the full window width. Width is now capped (max 440 px) while staying fluid on mobile.
+
 # 0.7.3 (beta)
 
 - 🔌 **Connection status**: new `Connected to the printer` info (MQTT link to the broker), distinct from "Online" (fresh data). Green/grey dot in the widget to check at a glance that the plugin is actually talking to the printer, even in standby.

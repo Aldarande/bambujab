@@ -1,5 +1,9 @@
 # BambuJab Changelog
 
+# 0.7.4 (beta)
+
+- 🐛 **Anzeige-Fehlerbehebung**: Die Widget-Karte konnte sich über die gesamte Fensterbreite strecken. Die Breite ist jetzt begrenzt (max. 440 px) und bleibt auf Mobilgeräten flexibel.
+
 # 0.7.3 (beta)
 
 - 🔌 **Verbindungsstatus**: neue Info `Mit dem Drucker verbunden` (MQTT-Verbindung zum Broker), getrennt von „Online" (aktuelle Daten). Grüner/grauer Punkt im Widget, um auf einen Blick zu prüfen, dass das Plugin tatsächlich mit dem Drucker kommuniziert, auch im Standby.
