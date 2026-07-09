@@ -144,9 +144,46 @@ class bambujab extends eqLogic {
     }
     if (count(self::enabledInstances()) === 0) {
       $return['launchable'] = 'nok';
-      $return['launchable_message'] = __('Aucune imprimante configurée (IP + code d\'accès requis)', __FILE__);
+      $return['launchable_message'] = self::missingConfigMessage();
     }
     return $return;
+  }
+
+  /**
+   * Diagnostic : aucune instance complète. On détaille, pour le premier équipement
+   * actif incomplet, les champs manquants (LAN ou cloud) au lieu d'un message
+   * générique orienté LAN — beaucoup plus parlant pour l'utilisateur.
+   */
+  private static function missingConfigMessage() {
+    $enabled = array();
+    foreach (eqLogic::byType(__CLASS__) as $eqLogic) {
+      if ($eqLogic->getIsEnable()) { $enabled[] = $eqLogic; }
+    }
+    if (count($enabled) === 0) {
+      return __('Aucune imprimante configurée', __FILE__);
+    }
+    foreach ($enabled as $eqLogic) {
+      $mode = trim((string)$eqLogic->getConfiguration('conn_mode', 'lan'));
+      $miss = array();
+      if ($mode === 'cloud') {
+        if (trim((string)$eqLogic->getSecret('cloud_token')) === '')          { $miss[] = __('jeton cloud', __FILE__); }
+        if (trim((string)$eqLogic->getConfiguration('cloud_username', '')) === '') { $miss[] = __('identifiant cloud', __FILE__); }
+        if (trim((string)$eqLogic->getConfiguration('cloud_mqtt_host', '')) === '') { $miss[] = __('serveur MQTT', __FILE__); }
+        if (trim((string)$eqLogic->getConfiguration('serial', '')) === '')     { $miss[] = __('n° de série (imprimante non sélectionnée)', __FILE__); }
+        if (count($miss) > 0) {
+          return sprintf(__('« %1$s » (cloud) : %2$s manquant. Reconnectez-vous, choisissez l\'imprimante dans la liste, puis Sauvegardez.', __FILE__),
+                         $eqLogic->getName(), implode(', ', $miss));
+        }
+      } else {
+        if (trim((string)$eqLogic->getConfiguration('ip', '')) === '') { $miss[] = __('adresse IP', __FILE__); }
+        if (trim((string)$eqLogic->getSecret('access_code')) === '')   { $miss[] = __('code d\'accès', __FILE__); }
+        if (count($miss) > 0) {
+          return sprintf(__('« %1$s » (LAN) : %2$s manquant.', __FILE__),
+                         $eqLogic->getName(), implode(', ', $miss));
+        }
+      }
+    }
+    return __('Aucune imprimante configurée', __FILE__);
   }
 
   /** Instances actives complètes (id/ip/serial/access_code). */
