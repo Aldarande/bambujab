@@ -1,5 +1,9 @@
 # Changelog BambuJab
 
+# 0.7.3 (beta)
+
+- 🔌 **Stato di connessione**: nuova info `Connesso alla stampante` (collegamento MQTT al broker), distinta da "Online" (dati aggiornati). Pallino verde/grigio nel widget per verificare a colpo d'occhio che il plugin dialoghi davvero con la stampante, anche in standby.
+
 # 0.7.2 (beta)
 
 - 🐛 **Correzione**: la finestra **File** non veniva mostrata (pagina grigia senza contenuto) durante la modifica di una stampante. Il modale è stato spostato fuori dal pannello nascosto.

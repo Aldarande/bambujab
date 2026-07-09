@@ -4,6 +4,10 @@
 >
 >S'il n'y a pas d'information sur la mise à jour, c'est qu'elle concerne uniquement de la documentation, une traduction ou du texte.
 
+# 0.7.3 (beta)
+
+- 🔌 **Statut de connexion** : nouvelle info `Connecté à l'imprimante` (lien MQTT au broker), distincte de « En ligne » (données fraîches). Pastille verte/grise dans le widget pour vérifier d'un coup d'œil que le plugin dialogue bien avec l'imprimante, même en veille.
+
 # 0.7.2 (beta)
 
 - 🐛 **Correction** : la fenêtre **Fichiers** ne s'affichait pas (page grisée sans contenu) en mode édition d'une imprimante. La modal est déplacée hors du panneau masqué.

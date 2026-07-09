@@ -41,7 +41,8 @@ class BambuMqttClient:
     appelé à chaque message d'état reçu."""
 
     def __init__(self, instance_id, ip, serial, access_code, on_report, on_status=None,
-                 on_identify=None, host=None, port=MQTT_PORT, username=MQTT_USER, tls_insecure=True):
+                 on_identify=None, on_link=None, host=None, port=MQTT_PORT,
+                 username=MQTT_USER, tls_insecure=True):
         self.instance_id = instance_id
         self.ip = ip
         # host de connexion : IP imprimante (LAN) ou broker cloud (us/cn.mqtt.bambulab.com)
@@ -54,6 +55,7 @@ class BambuMqttClient:
         self.on_report = on_report
         self.on_status = on_status      # callback(instance_id, online_bool)
         self.on_identify = on_identify  # callback(instance_id, serial, model) à la découverte
+        self.on_link = on_link          # callback(instance_id, connected_bool) : lien MQTT au broker
         # Si le n° de série est connu : abonnement ciblé. Sinon : wildcard, le
         # serial est appris à la réception du premier message (topic device/<sn>/report).
         if self.serial:
@@ -109,7 +111,9 @@ class BambuMqttClient:
                 self._client.connect(self.host, self.port, keepalive=60)
                 self._client.loop_forever(retry_first_connection=False)
             except Exception as e:
+                self._connected = False
                 self._set_online(False)
+                self._set_link(False)
                 LOGGER.warning("mqtt_client.py: #%s déconnecté/échec (%s) — nouvelle tentative dans 10s",
                                self.instance_id, e)
             if self._stop:
@@ -124,6 +128,8 @@ class BambuMqttClient:
             # On NE force PAS online=1 ici : être connecté au broker (surtout en cloud)
             # ne signifie pas que l'imprimante est active. online passe à 1 à la
             # réception d'un report réel (cf. bambujabd.on_report).
+            # En revanche 'connected' (lien MQTT) passe bien à 1 : le plugin dialogue.
+            self._set_link(True)
             client.subscribe(self.topic_report)
             LOGGER.info("mqtt_client.py: #%s connecté, souscription %s", self.instance_id, self.topic_report)
             # Si le n° de série est déjà connu (saisi), on émet aussi le modèle déduit
@@ -137,12 +143,14 @@ class BambuMqttClient:
             self.request_pushall()
         else:
             self._set_online(False)
+            self._set_link(False)
             LOGGER.error("mqtt_client.py: #%s connexion refusée (code %s) — vérifier IP/access code/Mode LAN",
                          self.instance_id, reason_code)
 
     def _on_disconnect(self, client, userdata, *args):
         self._connected = False
         self._set_online(False)
+        self._set_link(False)
         LOGGER.info("mqtt_client.py: #%s déconnecté", self.instance_id)
 
     def _on_message(self, client, userdata, msg):
@@ -180,6 +188,14 @@ class BambuMqttClient:
                 self.on_status(self.instance_id, online)
             except Exception as e:
                 LOGGER.debug("mqtt_client.py: #%s on_status erreur %s", self.instance_id, e)
+
+    def _set_link(self, connected):
+        """Remonte l'état du lien MQTT au broker (indépendant de 'online')."""
+        if self.on_link is not None:
+            try:
+                self.on_link(self.instance_id, connected)
+            except Exception as e:
+                LOGGER.debug("mqtt_client.py: #%s on_link erreur %s", self.instance_id, e)
 
     def request_pushall(self):
         """Demande l'état complet (utile à la connexion et périodiquement)."""

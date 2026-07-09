@@ -11,7 +11,7 @@ require_once __DIR__ . '/../../../../core/php/core.inc.php';
 class bambujab extends eqLogic {
 
   const DAEMON_PORT_DEFAULT = 55152;
-  const WIDGET_CSS_VERSION = '057'; // bump pour invalider le cache du CSS widget
+  const WIDGET_CSS_VERSION = '058'; // bump pour invalider le cache du CSS widget
   const ENC_PREFIX = 'enc:';        // marqueur des valeurs de config chiffrées au repos
 
   // Champs de configuration sensibles chiffrés en base (utils::encrypt).
@@ -49,6 +49,7 @@ class bambujab extends eqLogic {
   public static function monitoringCmds() {
     return array(
       'online'            => array('En ligne',          'binary',  '',    'GENERIC_INFO'),
+      'connected'         => array('Connecté à l\'imprimante', 'binary', '', 'GENERIC_INFO'),
       'model'             => array('Modèle',            'string',  '',    'GENERIC_INFO'),
       'printer_state'     => array('État imprimante',   'string',  '',    'GENERIC_INFO'),
       'stage'             => array('Étape courante',    'string',  '',    'GENERIC_INFO'),
@@ -692,6 +693,7 @@ class bambujab extends eqLogic {
     $total    = (int)$this->val('total_layer', 0);
     $remain   = (int)$this->val('remaining_time', 0);
     $online   = (int)$this->val('online', 0);
+    $connected = (int)$this->val('connected', 0); // lien MQTT au broker (plugin ↔ imprimante)
     $light    = (int)$this->val('light_state', 0);
     $model    = (string)$this->val('model', 'BambuLab');
     $nozzle   = $this->val('nozzle_temp', '—');
@@ -806,7 +808,7 @@ class bambujab extends eqLogic {
 <div class="jbb-card" data-state="<?php echo htmlspecialchars($state); ?>">
   <?php echo $cssTag; ?>
   <div class="jbb-titlebar">
-    <a class="jbb-name" href="index.php?v=d&p=bambujab&m=bambujab&id=<?php echo $id; ?>" title="<?php echo __('Ouvrir la configuration', __FILE__); ?>"><?php echo htmlspecialchars($this->getName()); ?></a>
+    <a class="jbb-name" href="index.php?v=d&p=bambujab&m=bambujab&id=<?php echo $id; ?>" title="<?php echo __('Ouvrir la configuration', __FILE__); ?>"><span class="jbb-conn <?php echo $connected === 1 ? 'jbb-conn-ok' : 'jbb-conn-ko'; ?>" title="<?php echo $connected === 1 ? __('Connecté à l\'imprimante', __FILE__) : __('Non connecté à l\'imprimante', __FILE__); ?>"></span><?php echo htmlspecialchars($this->getName()); ?></a>
     <span class="jbb-tools">
       <?php if ($hasCamera) { ?>
       <span class="jbb-tool jbb-camtoggle<?php echo $cameraOn === 1 ? ' jbb-on' : ''; ?>" title="<?php echo __('Caméra : allumer / éteindre le flux', __FILE__); ?>" onclick="(function(el){var id=<?php echo $id; ?>;var w=document.getElementById('jbbCamWrap'+id);var i=document.getElementById('jbbCam'+id);if(!w||!i){return;}var on=(i.getAttribute('src')||'').indexOf('stream.php')!==-1;if(on){i.src='';w.style.display='none';el.classList.remove('jbb-on');}else{w.style.display='block';i.src='plugins/bambujab/core/php/stream.php?id='+id;el.classList.add('jbb-on');}})(this);return false;"><i class="fas fa-video"></i></span>
