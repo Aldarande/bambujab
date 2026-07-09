@@ -47,6 +47,10 @@
   padding-bottom:8px;border-bottom:1px solid rgba(148,163,184,.15);}
 .jbb-name{color:#f1f5f9;font-weight:700;font-size:1.02em;text-decoration:none;cursor:pointer;}
 .jbb-name:hover{color:#34d399;text-decoration:none;}
+.jbb-conn{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:7px;vertical-align:middle;
+  border:1px solid rgba(0,0,0,.25);}
+.jbb-conn-ok{background:#22c55e;box-shadow:0 0 5px rgba(34,197,94,.85);}
+.jbb-conn-ko{background:#6b7280;box-shadow:none;}
 .jbb-tools{display:flex;align-items:center;gap:6px;}
 .jbb-tool{width:28px;height:28px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;
   color:#cbd5e1;background:rgba(148,163,184,.12);border:1px solid rgba(148,163,184,.18);cursor:pointer;

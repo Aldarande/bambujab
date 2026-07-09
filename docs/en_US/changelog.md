@@ -4,6 +4,10 @@
 >
 >If there is no information about an update, it only concerns documentation, translation or text.
 
+# 0.7.3 (beta)
+
+- 🔌 **Connection status**: new `Connected to the printer` info (MQTT link to the broker), distinct from "Online" (fresh data). Green/grey dot in the widget to check at a glance that the plugin is actually talking to the printer, even in standby.
+
 # 0.7.2 (beta)
 
 - 🐛 **Fix**: the **Files** window did not show (greyed-out page with no content) while editing a printer. The modal is moved out of the hidden panel.

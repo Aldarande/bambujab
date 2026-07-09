@@ -51,6 +51,8 @@
   "Configuration avancée": "Advanced configuration",
   "Connecté. Choisissez votre imprimante puis Sauvegardez.": "Connected. Select your printer then Save.",
   "Connecté. Choisissez votre imprimante.": "Connected. Select your printer.",
+  "Connecté à l'imprimante": "Connected to the printer",
+  "Non connecté à l'imprimante": "Not connected to the printer",
   "Connexion": "Connection",
   "Connexion au démon impossible (démon arrêté ?)": "Cannot connect to the daemon (daemon stopped?)",
   "Connexion…": "Connecting…",

@@ -40,6 +40,7 @@ _clients = {}          # instance_id -> BambuMqttClient
 _last_pushall = 0
 _last_report = {}      # instance_id -> timestamp du dernier report reçu
 _online_pushed = {}    # instance_id -> dernier état 'online' poussé (anti-spam)
+_link_pushed = {}      # instance_id -> dernier état 'connected' (lien MQTT) poussé
 _probe_ip = {}         # instance_id -> IP locale à sonder (joignabilité)
 _reachable_pushed = {} # instance_id -> dernier état 'reachable' poussé
 _last_probe = {}       # instance_id -> timestamp de la dernière sonde
@@ -63,6 +64,10 @@ def on_report(instance_id, report):
             return
         changes["online"] = 1
         changes["reachable"] = 1  # reçoit des données -> évidemment joignable
+        # Un report reçu implique un lien MQTT actif : on garantit connected=1.
+        if not _link_pushed.get(instance_id, False):
+            changes["connected"] = 1
+            _link_pushed[instance_id] = True
         # Fraîcheur : un report = imprimante active. Sert au watchdog check_freshness().
         _last_report[instance_id] = time.time()
         _online_pushed[instance_id] = True
@@ -82,6 +87,18 @@ def on_status(instance_id, online):
     if not online:
         _online_pushed[instance_id] = False
         jeedom_com_obj.add_changes("devices::%s" % instance_id, {"online": 0})
+
+
+def on_link(instance_id, connected):
+    """Callback lien MQTT au broker : remonte 'connected' (le plugin dialogue-t-il
+    avec l'imprimante ?). Distinct de 'online' (données fraîches) : en veille cloud,
+    connected=1 mais online=0. Anti-spam sur transitions."""
+    connected = bool(connected)
+    if _link_pushed.get(instance_id) == connected:
+        return
+    _link_pushed[instance_id] = connected
+    jeedom_com_obj.add_changes("devices::%s" % instance_id, {"connected": 1 if connected else 0})
+    logging.info("bambujabd.py: #%s lien MQTT = %s", instance_id, "connecté" if connected else "déconnecté")
 
 
 def _probe_reachable(ip):
@@ -160,7 +177,7 @@ def start_instances(instances):
                 logging.warning("bambujabd.py: instance cloud #%s incomplète (host/username/token/serial) — ignorée", iid)
                 continue
             client = BambuMqttClient(iid, host, serial, secret, on_report, on_status, on_identify,
-                                     host=host, port=int(inst.get("port", 8883)),
+                                     on_link=on_link, host=host, port=int(inst.get("port", 8883)),
                                      username=username, tls_insecure=False)
         else:
             ip = inst.get("ip", "").strip()
@@ -168,7 +185,7 @@ def start_instances(instances):
                 logging.warning("bambujabd.py: instance LAN #%s incomplète (ip/access_code requis) — ignorée", iid)
                 continue
             client = BambuMqttClient(iid, ip, serial, secret, on_report, on_status, on_identify,
-                                     host=ip, port=int(inst.get("port", 8883)),
+                                     on_link=on_link, host=ip, port=int(inst.get("port", 8883)),
                                      username="bblp", tls_insecure=True)
         _clients[iid] = client
         _probe_ip[iid] = (inst.get("probe_ip") or "").strip()
@@ -176,6 +193,7 @@ def start_instances(instances):
         # report n'arrive sous STALE_SECONDS (imprimante en veille), online passera à 0.
         _last_report[iid] = time.time()
         _online_pushed[iid] = True
+        _link_pushed[iid] = False  # pas encore connecté au broker (on_link passera à 1)
         client.start()
     logging.info("bambujabd.py: %d imprimante(s) démarrée(s)", len(_clients))
 

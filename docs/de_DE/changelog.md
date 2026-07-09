@@ -1,5 +1,9 @@
 # BambuJab Changelog
 
+# 0.7.3 (beta)
+
+- 🔌 **Verbindungsstatus**: neue Info `Mit dem Drucker verbunden` (MQTT-Verbindung zum Broker), getrennt von „Online" (aktuelle Daten). Grüner/grauer Punkt im Widget, um auf einen Blick zu prüfen, dass das Plugin tatsächlich mit dem Drucker kommuniziert, auch im Standby.
+
 # 0.7.2 (beta)
 
 - 🐛 **Fehlerbehebung**: Das Fenster **Dateien** wurde im Bearbeitungsmodus eines Druckers nicht angezeigt (ausgegraute Seite ohne Inhalt). Das Modal wurde aus dem ausgeblendeten Panel verschoben.

@@ -1,5 +1,9 @@
 # Changelog BambuJab
 
+# 0.7.3 (beta)
+
+- 🔌 **Estado de conexión**: nueva info `Conectado a la impresora` (enlace MQTT con el broker), distinta de "En línea" (datos recientes). Punto verde/gris en el widget para verificar de un vistazo que el plugin dialoga realmente con la impresora, incluso en reposo.
+
 # 0.7.2 (beta)
 
 - 🐛 **Corrección**: la ventana **Archivos** no se mostraba (página gris sin contenido) al editar una impresora. El modal se ha movido fuera del panel oculto.
