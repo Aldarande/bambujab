@@ -4,6 +4,10 @@
 >
 >S'il n'y a pas d'information sur la mise à jour, c'est qu'elle concerne uniquement de la documentation, une traduction ou du texte.
 
+# 0.7.1 (beta)
+
+- 🐛 **Correction** : erreur SQL (`Unknown column 'SECRET_KEYS'`) empêchant la création de l'équipement sur certaines installations.
+
 # 0.7.0 (beta)
 
 - ⚠️ **Erreurs d'impression en clair** : les codes HMS sont traduits en messages lisibles (base Bambu) + bannière d'erreur dans le widget.

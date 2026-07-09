@@ -1,5 +1,9 @@
 # BambuJab Changelog
 
+# 0.7.1 (beta)
+
+- 🐛 **Fehlerbehebung**: SQL-Fehler (`Unknown column 'SECRET_KEYS'`), der auf einigen Installationen das Anlegen des Geräts verhinderte.
+
 # 0.3.0 (beta)
 
 - 📷 Kamera (best-effort P1/A1): Kammerbild + Auto-Aktualisierung.
