@@ -1,5 +1,9 @@
 # BambuJab Changelog
 
+# 0.7.2 (beta)
+
+- 🐛 **Fehlerbehebung**: Das Fenster **Dateien** wurde im Bearbeitungsmodus eines Druckers nicht angezeigt (ausgegraute Seite ohne Inhalt). Das Modal wurde aus dem ausgeblendeten Panel verschoben.
+
 # 0.7.1 (beta)
 
 - 🐛 **Fehlerbehebung**: SQL-Fehler (`Unknown column 'SECRET_KEYS'`), der auf einigen Installationen das Anlegen des Geräts verhinderte.

@@ -4,6 +4,10 @@
 >
 >If there is no information about an update, it only concerns documentation, translation or text.
 
+# 0.7.2 (beta)
+
+- 🐛 **Fix**: the **Files** window did not show (greyed-out page with no content) while editing a printer. The modal is moved out of the hidden panel.
+
 # 0.7.1 (beta)
 
 - 🐛 **Fix**: SQL error (`Unknown column 'SECRET_KEYS'`) preventing equipment creation on some installations.

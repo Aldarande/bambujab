@@ -1,5 +1,9 @@
 # Changelog BambuJab
 
+# 0.7.2 (beta)
+
+- 🐛 **Correzione**: la finestra **File** non veniva mostrata (pagina grigia senza contenuto) durante la modifica di una stampante. Il modale è stato spostato fuori dal pannello nascosto.
+
 # 0.7.1 (beta)
 
 - 🐛 **Correzione**: errore SQL (`Unknown column 'SECRET_KEYS'`) che impediva la creazione del dispositivo su alcune installazioni.

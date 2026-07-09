@@ -52,26 +52,6 @@ include_file('desktop', 'bambujab', 'css', 'bambujab');
       </div>
     </div>
 
-    <!-- Modal Fichiers imprimante -->
-    <div class="modal fade" id="modal_filesBambuJab" tabindex="-1" role="dialog">
-      <div class="modal-dialog modal-lg" role="document">
-        <div class="modal-content" style="border-radius:10px;overflow:hidden;">
-          <div class="modal-header" style="background:linear-gradient(135deg,#0d7d4d,#16a34a);border:none;">
-            <button type="button" class="close" data-dismiss="modal" style="color:#fff;opacity:1;"><span>&times;</span></button>
-            <h4 class="modal-title" style="color:#fff;"><i class="fas fa-folder-open"></i> {{Fichiers de l'imprimante}}</h4>
-          </div>
-          <div class="modal-body" style="padding:18px 22px;">
-            <div style="display:flex;gap:10px;margin-bottom:12px;align-items:center;">
-              <input type="file" id="bjb_fileUpload" accept=".3mf,.gcode" style="flex:1;">
-              <button class="btn btn-success" id="bjb_btnUpload"><i class="fas fa-upload"></i> {{Envoyer}}</button>
-              <button class="btn btn-default" id="bjb_btnRefreshFiles"><i class="fas fa-sync"></i></button>
-            </div>
-            <input class="form-control" id="bjb_fileSearch" placeholder="{{Filtrer…}}" style="margin-bottom:10px;">
-            <div id="bjb_filesList" style="max-height:50vh;overflow:auto;"></div>
-          </div>
-        </div>
-      </div>
-    </div>
     <legend><i class="fas fa-print"></i> {{Mes imprimantes BambuLab}}</legend>
     <?php
     if (count($eqLogics) === 0) {
@@ -325,6 +305,27 @@ include_file('desktop', 'bambujab', 'css', 'bambujab');
             <tbody></tbody>
           </table>
         </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Fichiers imprimante (hors des panneaux pour rester affichable en mode édition) -->
+<div class="modal fade" id="modal_filesBambuJab" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content" style="border-radius:10px;overflow:hidden;">
+      <div class="modal-header" style="background:linear-gradient(135deg,#0d7d4d,#16a34a);border:none;">
+        <button type="button" class="close" data-dismiss="modal" style="color:#fff;opacity:1;"><span>&times;</span></button>
+        <h4 class="modal-title" style="color:#fff;"><i class="fas fa-folder-open"></i> {{Fichiers de l'imprimante}}</h4>
+      </div>
+      <div class="modal-body" style="padding:18px 22px;">
+        <div style="display:flex;gap:10px;margin-bottom:12px;align-items:center;">
+          <input type="file" id="bjb_fileUpload" accept=".3mf,.gcode" style="flex:1;">
+          <button class="btn btn-success" id="bjb_btnUpload"><i class="fas fa-upload"></i> {{Envoyer}}</button>
+          <button class="btn btn-default" id="bjb_btnRefreshFiles"><i class="fas fa-sync"></i></button>
+        </div>
+        <input class="form-control" id="bjb_fileSearch" placeholder="{{Filtrer…}}" style="margin-bottom:10px;">
+        <div id="bjb_filesList" style="max-height:50vh;overflow:auto;"></div>
       </div>
     </div>
   </div>
