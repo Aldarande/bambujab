@@ -11,7 +11,7 @@ require_once __DIR__ . '/../../../../core/php/core.inc.php';
 class bambujab extends eqLogic {
 
   const DAEMON_PORT_DEFAULT = 55152;
-  const WIDGET_CSS_VERSION = '058'; // bump pour invalider le cache du CSS widget
+  const WIDGET_CSS_VERSION = '059'; // bump pour invalider le cache du CSS widget
   const ENC_PREFIX = 'enc:';        // marqueur des valeurs de config chiffrées au repos
 
   // Champs de configuration sensibles chiffrés en base (utils::encrypt).

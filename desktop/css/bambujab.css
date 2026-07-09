@@ -1,7 +1,11 @@
 /* BambuJab — styles du widget tableau de bord (carte imprimante) et de la page équipement.
  * Préfixe .jbb- pour éviter toute collision avec le core Jeedom. */
 
-.jbb-card{position:relative;border-radius:16px;padding:16px 18px;color:#e5e7eb;
+/* Conteneur : borne la largeur pour éviter que la carte s'étire sur toute la
+ * largeur de la fenêtre quand la cellule Jeedom n'est pas contrainte. Reste fluide
+ * (100% du parent) sous 440px -> responsive mobile. */
+.jbb-wrap{width:100%;max-width:440px;margin:0 auto;}
+.jbb-card{position:relative;box-sizing:border-box;width:100%;border-radius:16px;padding:16px 18px;color:#e5e7eb;
   background:linear-gradient(145deg,rgba(30,41,59,.92),rgba(15,23,42,.96));
   border:1px solid rgba(148,163,184,.18);box-shadow:0 8px 28px rgba(0,0,0,.35);overflow:hidden;}
 .jbb-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}

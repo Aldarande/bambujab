@@ -1,5 +1,9 @@
 # Changelog BambuJab
 
+# 0.7.4 (beta)
+
+- 🐛 **Correzione di visualizzazione**: la scheda del widget poteva allargarsi su tutta la larghezza della finestra. La larghezza è ora limitata (max 440 px) pur restando fluida su mobile.
+
 # 0.7.3 (beta)
 
 - 🔌 **Stato di connessione**: nuova info `Connesso alla stampante` (collegamento MQTT al broker), distinta da "Online" (dati aggiornati). Pallino verde/grigio nel widget per verificare a colpo d'occhio che il plugin dialoghi davvero con la stampante, anche in standby.
