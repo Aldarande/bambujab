@@ -4,6 +4,10 @@
 >
 >S'il n'y a pas d'information sur la mise à jour, c'est qu'elle concerne uniquement de la documentation, une traduction ou du texte.
 
+# 0.7.5 (beta)
+
+- 🩺 **Diagnostic démon plus clair** : quand aucune imprimante n'est prête, le message indique désormais l'équipement et le champ précis manquant (ex. « … (cloud) : n° de série (imprimante non sélectionnée) manquant »), au lieu du message générique « IP + code d'accès requis » trompeur pour une imprimante cloud.
+
 # 0.7.4 (beta)
 
 - 🐛 **Correction d'affichage** : la carte du widget pouvait s'étirer sur toute la largeur de la fenêtre. Largeur désormais bornée (max 440 px) tout en restant fluide sur mobile.

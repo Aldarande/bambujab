@@ -1,5 +1,9 @@
 # BambuJab Changelog
 
+# 0.7.5 (beta)
+
+- 🩺 **Klarere Dienst-Diagnose**: Wenn kein Drucker bereit ist, nennt die Meldung jetzt das Gerät und das genau fehlende Feld (z. B. „… (Cloud): Seriennummer (Drucker nicht ausgewählt) fehlt") statt der generischen, für Cloud-Drucker irreführenden Meldung „IP + Zugangscode erforderlich".
+
 # 0.7.4 (beta)
 
 - 🐛 **Anzeige-Fehlerbehebung**: Die Widget-Karte konnte sich über die gesamte Fensterbreite strecken. Die Breite ist jetzt begrenzt (max. 440 px) und bleibt auf Mobilgeräten flexibel.

@@ -4,6 +4,10 @@
 >
 >If there is no information about an update, it only concerns documentation, translation or text.
 
+# 0.7.5 (beta)
+
+- 🩺 **Clearer daemon diagnostics**: when no printer is ready, the message now names the equipment and the exact missing field (e.g. "… (cloud): serial number (printer not selected) missing") instead of the generic "IP + access code required" that was misleading for a cloud printer.
+
 # 0.7.4 (beta)
 
 - 🐛 **Display fix**: the widget card could stretch across the full window width. Width is now capped (max 440 px) while staying fluid on mobile.

@@ -1,5 +1,9 @@
 # Changelog BambuJab
 
+# 0.7.5 (beta)
+
+- 🩺 **Diagnóstico del demonio más claro**: cuando ninguna impresora está lista, el mensaje ahora indica el equipo y el campo exacto que falta (p. ej. «… (cloud): número de serie (impresora no seleccionada) falta») en lugar del genérico «IP + código de acceso requerido», engañoso para una impresora cloud.
+
 # 0.7.4 (beta)
 
 - 🐛 **Corrección de visualización**: la tarjeta del widget podía estirarse a lo ancho de toda la ventana. El ancho ahora está limitado (máx. 440 px) manteniéndose fluido en móvil.
