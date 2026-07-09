@@ -4,6 +4,10 @@
 >
 >S'il n'y a pas d'information sur la mise à jour, c'est qu'elle concerne uniquement de la documentation, une traduction ou du texte.
 
+# 0.7.2 (beta)
+
+- 🐛 **Correction** : la fenêtre **Fichiers** ne s'affichait pas (page grisée sans contenu) en mode édition d'une imprimante. La modal est déplacée hors du panneau masqué.
+
 # 0.7.1 (beta)
 
 - 🐛 **Correction** : erreur SQL (`Unknown column 'SECRET_KEYS'`) empêchant la création de l'équipement sur certaines installations.

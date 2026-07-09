@@ -1,5 +1,9 @@
 # Changelog BambuJab
 
+# 0.7.2 (beta)
+
+- 🐛 **Corrección**: la ventana **Archivos** no se mostraba (página gris sin contenido) al editar una impresora. El modal se ha movido fuera del panel oculto.
+
 # 0.7.1 (beta)
 
 - 🐛 **Corrección**: error SQL (`Unknown column 'SECRET_KEYS'`) que impedía la creación del equipo en algunas instalaciones.
