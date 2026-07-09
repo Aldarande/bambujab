@@ -15,11 +15,14 @@ class bambujab extends eqLogic {
   const ENC_PREFIX = 'enc:';        // marqueur des valeurs de config chiffrées au repos
 
   // Champs de configuration sensibles chiffrés en base (utils::encrypt).
-  private static $SECRET_KEYS = array('access_code', 'cloud_token', 'cloud_refresh_token');
+  // Préfixe "_" obligatoire : DB::getFields() liste par Reflection toutes les
+  // propriétés de la classe (statiques incluses) et les insère comme colonnes SQL,
+  // sauf celles préfixées par "_".
+  private static $_SECRET_KEYS = array('access_code', 'cloud_token', 'cloud_refresh_token');
 
   /** Chiffre les secrets avant enregistrement (idempotent grâce au marqueur ENC_PREFIX). */
   public function preSave() {
-    foreach (self::$SECRET_KEYS as $key) {
+    foreach (self::$_SECRET_KEYS as $key) {
       $val = (string)$this->getConfiguration($key, '');
       if ($val !== '' && strpos($val, self::ENC_PREFIX) !== 0) {
         $this->setConfiguration($key, self::ENC_PREFIX . utils::encrypt($val));
