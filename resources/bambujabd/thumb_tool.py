@@ -41,6 +41,17 @@ def _connect(ip, code):
     return ftp
 
 
+def _mdtm(ftp, path):
+    """Date de modification (MDTM) d'un fichier, en entier AAAAMMJJhhmmss ; 0 si indispo.
+    Sert à départager plusieurs .3mf correspondant au même job (on prend le plus récent)."""
+    try:
+        resp = ftp.sendcmd("MDTM " + path)  # "213 20240115103012"
+        digits = re.sub(r"[^0-9]", "", resp.split(" ", 1)[-1])
+        return int(digits[:14]) if digits else 0
+    except Exception:
+        return 0
+
+
 def _find_3mf(ftp, job):
     jn = _norm(job)
     cands = []
@@ -54,13 +65,30 @@ def _find_3mf(ftp, job):
             base = n.split("/")[-1]
             if base.lower().endswith(".3mf"):
                 cands.append(((d.rstrip("/") or "") + "/" + base, base))
-    if jn:
-        # correspondance : nom du job contenu dans le nom de fichier (ou l'inverse)
-        for path, base in cands:
-            nb = _norm(base)
-            if jn and (jn in nb or nb.startswith(jn)):
-                return path
-    return None
+    if not jn:
+        return None
+    # Score de correspondance : 2 = nom identique (hors extension), 1 = job contenu
+    # dans le nom (ou préfixe), 0 = sans rapport. On garde le meilleur score, puis
+    # on départage par date (le .3mf le plus récent = l'impression réellement lancée).
+    matches = []
+    for path, base in cands:
+        nb = _norm(base)
+        stem = _norm(base.rsplit(".", 1)[0])
+        if stem == jn:
+            score = 2
+        elif jn in nb or nb.startswith(jn):
+            score = 1
+        else:
+            continue
+        matches.append((score, path))
+    if not matches:
+        return None
+    best_score = max(s for s, _ in matches)
+    best = [p for s, p in matches if s == best_score]
+    if len(best) == 1:
+        return best[0]
+    # Plusieurs candidats à égalité : on prend le plus récemment modifié.
+    return max(best, key=lambda p: _mdtm(ftp, p))
 
 
 def _partial_download(ftp, path, max_bytes):

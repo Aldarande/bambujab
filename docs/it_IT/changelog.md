@@ -1,5 +1,9 @@
 # Changelog BambuJab
 
+# 0.7.7 (beta)
+
+- 🖼️ **Anteprima più affidabile**: quando più file `.3mf` corrispondono al nome del lavoro, il plugin ora sceglie la corrispondenza esatta, poi il file più recente (data MDTM), invece del primo trovato — corregge le anteprime del piano errate.
+
 # 0.7.6 (beta)
 
 - 🐛 **Correzione di visualizzazione**: durante l'aggiornamento automatico, la scheda del widget si riposizionava al centro e copriva gli altri widget. L'aggiornamento ora sostituisce solo il contenuto (il nodo posizionato dalla griglia Jeedom è preservato).

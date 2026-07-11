@@ -1,5 +1,9 @@
 # BambuJab Changelog
 
+# 0.7.7 (beta)
+
+- 🖼️ **Zuverlässigeres Vorschaubild**: Wenn mehrere `.3mf`-Dateien zum Auftragsnamen passen, wählt das Plugin jetzt die exakte Übereinstimmung und dann die neueste Datei (MDTM-Datum) statt der ersten gefundenen — behebt falsche Platten-Vorschauen.
+
 # 0.7.6 (beta)
 
 - 🐛 **Anzeige-Fehlerbehebung**: Beim automatischen Aktualisieren sprang die Widget-Karte in die Mitte und überdeckte die anderen Widgets. Die Aktualisierung ersetzt jetzt nur noch den Inhalt (der vom Jeedom-Raster positionierte Knoten bleibt erhalten).
