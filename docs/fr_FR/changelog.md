@@ -4,6 +4,10 @@
 >
 >S'il n'y a pas d'information sur la mise à jour, c'est qu'elle concerne uniquement de la documentation, une traduction ou du texte.
 
+# 0.7.6 (beta)
+
+- 🐛 **Correction d'affichage** : lors du rafraîchissement automatique, la carte du widget se repositionnait au centre et recouvrait les autres widgets. Le rafraîchissement ne remplace plus que le contenu (le nœud positionné par la grille Jeedom est préservé).
+
 # 0.7.5 (beta)
 
 - 🩺 **Diagnostic démon plus clair** : quand aucune imprimante n'est prête, le message indique désormais l'équipement et le champ précis manquant (ex. « … (cloud) : n° de série (imprimante non sélectionnée) manquant »), au lieu du message générique « IP + code d'accès requis » trompeur pour une imprimante cloud.
