@@ -4,6 +4,10 @@
 >
 >If there is no information about an update, it only concerns documentation, translation or text.
 
+# 0.7.6 (beta)
+
+- 🐛 **Display fix**: on auto-refresh, the widget card jumped to the center and covered the other widgets. The refresh now replaces only the content (the node positioned by the Jeedom grid is preserved).
+
 # 0.7.5 (beta)
 
 - 🩺 **Clearer daemon diagnostics**: when no printer is ready, the message now names the equipment and the exact missing field (e.g. "… (cloud): serial number (printer not selected) missing") instead of the generic "IP + access code required" that was misleading for a cloud printer.

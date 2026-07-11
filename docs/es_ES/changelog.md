@@ -1,5 +1,9 @@
 # Changelog BambuJab
 
+# 0.7.6 (beta)
+
+- 🐛 **Corrección de visualización**: durante la actualización automática, la tarjeta del widget se reposicionaba en el centro y cubría los demás widgets. La actualización ahora solo reemplaza el contenido (el nodo posicionado por la cuadrícula de Jeedom se conserva).
+
 # 0.7.5 (beta)
 
 - 🩺 **Diagnóstico del demonio más claro**: cuando ninguna impresora está lista, el mensaje ahora indica el equipo y el campo exacto que falta (p. ej. «… (cloud): número de serie (impresora no seleccionada) falta») en lugar del genérico «IP + código de acceso requerido», engañoso para una impresora cloud.

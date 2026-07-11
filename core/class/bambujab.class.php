@@ -11,7 +11,7 @@ require_once __DIR__ . '/../../../../core/php/core.inc.php';
 class bambujab extends eqLogic {
 
   const DAEMON_PORT_DEFAULT = 55152;
-  const WIDGET_CSS_VERSION = '059'; // bump pour invalider le cache du CSS widget
+  const WIDGET_CSS_VERSION = '060'; // bump pour invalider le cache du CSS widget
   const ENC_PREFIX = 'enc:';        // marqueur des valeurs de config chiffrées au repos
 
   // Champs de configuration sensibles chiffrés en base (utils::encrypt).
@@ -851,7 +851,7 @@ class bambujab extends eqLogic {
       <span class="jbb-tool jbb-camtoggle<?php echo $cameraOn === 1 ? ' jbb-on' : ''; ?>" title="<?php echo __('Caméra : allumer / éteindre le flux', __FILE__); ?>" onclick="(function(el){var id=<?php echo $id; ?>;var w=document.getElementById('jbbCamWrap'+id);var i=document.getElementById('jbbCam'+id);if(!w||!i){return;}var on=(i.getAttribute('src')||'').indexOf('stream.php')!==-1;if(on){i.src='';w.style.display='none';el.classList.remove('jbb-on');}else{w.style.display='block';i.src='plugins/bambujab/core/php/stream.php?id='+id;el.classList.add('jbb-on');}})(this);return false;"><i class="fas fa-video"></i></span>
       <?php } ?>
       <a class="jbb-tool" href="https://ko-fi.com/aldarande" target="_blank" rel="noopener" title="<?php echo __('Faire un don', __FILE__); ?>"><i class="fas fa-mug-hot"></i></a>
-      <span class="jbb-tool" title="<?php echo __('Rafraîchir', __FILE__); ?>" onclick="(function(){var id=<?php echo $id; ?>;try{$.ajax({type:'POST',url:'plugins/bambujab/core/ajax/bambujab.ajax.php',data:{action:'pushall',id:id},dataType:'json'});}catch(e){}setTimeout(function(){try{$.ajax({type:'POST',url:'plugins/bambujab/core/ajax/bambujab.ajax.php',data:{action:'widget',id:id},dataType:'json',success:function(d){if(d&&d.state==='ok'&&d.result){var w=document.getElementById('jbbW'+id);if(w){w.outerHTML=d.result;}}}});}catch(e){}},1300);})();return false;"><i class="fas fa-sync"></i></span>
+      <span class="jbb-tool" title="<?php echo __('Rafraîchir', __FILE__); ?>" onclick="(function(){var id=<?php echo $id; ?>;try{$.ajax({type:'POST',url:'plugins/bambujab/core/ajax/bambujab.ajax.php',data:{action:'pushall',id:id},dataType:'json'});}catch(e){}setTimeout(function(){try{$.ajax({type:'POST',url:'plugins/bambujab/core/ajax/bambujab.ajax.php',data:{action:'widget',id:id},dataType:'json',success:function(d){if(d&&d.state==='ok'&&d.result){var w=document.getElementById('jbbW'+id);if(w){var t=document.createElement('div');t.innerHTML=d.result;var n=t.querySelector('#jbbW'+id);w.innerHTML=n?n.innerHTML:d.result;}}}});}catch(e){}},1300);})();return false;"><i class="fas fa-sync"></i></span>
     </span>
   </div>
   <?php if ($hasCamera) { ?>
@@ -891,7 +891,7 @@ class bambujab extends eqLogic {
   </div>
   <div class="jbb-ams"><?php echo $chips; ?></div>
 </div>
-<img alt="" style="display:none" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" onload="(function(){var id=<?php echo $id; ?>;window.jbbT=window.jbbT||{};if(window.jbbT[id]){return;}window.jbbT[id]=setInterval(function(){var c=document.getElementById('jbbCam'+id);if(c&&(''+c.getAttribute('src')).indexOf('stream.php')>-1){return;}try{$.ajax({type:'POST',url:'plugins/bambujab/core/ajax/bambujab.ajax.php',data:{action:'widget',id:id},dataType:'json',success:function(d){if(d&&d.state==='ok'&&d.result){var w=document.getElementById('jbbW'+id);if(w){w.outerHTML=d.result;}}}});}catch(e){}},7000);})();">
+<img alt="" style="display:none" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" onload="(function(){var id=<?php echo $id; ?>;window.jbbT=window.jbbT||{};if(window.jbbT[id]){return;}window.jbbT[id]=setInterval(function(){var c=document.getElementById('jbbCam'+id);if(c&&(''+c.getAttribute('src')).indexOf('stream.php')>-1){return;}try{$.ajax({type:'POST',url:'plugins/bambujab/core/ajax/bambujab.ajax.php',data:{action:'widget',id:id},dataType:'json',success:function(d){if(d&&d.state==='ok'&&d.result){var w=document.getElementById('jbbW'+id);if(w){var t=document.createElement('div');t.innerHTML=d.result;var n=t.querySelector('#jbbW'+id);w.innerHTML=n?n.innerHTML:d.result;}}}});}catch(e){}},7000);})();">
 </div>
     <?php
     return ob_get_clean();

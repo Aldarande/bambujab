@@ -1,5 +1,9 @@
 # BambuJab Changelog
 
+# 0.7.6 (beta)
+
+- 🐛 **Anzeige-Fehlerbehebung**: Beim automatischen Aktualisieren sprang die Widget-Karte in die Mitte und überdeckte die anderen Widgets. Die Aktualisierung ersetzt jetzt nur noch den Inhalt (der vom Jeedom-Raster positionierte Knoten bleibt erhalten).
+
 # 0.7.5 (beta)
 
 - 🩺 **Klarere Dienst-Diagnose**: Wenn kein Drucker bereit ist, nennt die Meldung jetzt das Gerät und das genau fehlende Feld (z. B. „… (Cloud): Seriennummer (Drucker nicht ausgewählt) fehlt") statt der generischen, für Cloud-Drucker irreführenden Meldung „IP + Zugangscode erforderlich".
