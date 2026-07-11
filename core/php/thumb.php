@@ -22,8 +22,20 @@ if (!is_object($eqLogic)) {
 
 try {
   $path = $eqLogic->getThumbnail();
+  // Revalidation plutôt que cache figé : le navigateur vérifie à chaque fois via
+  // l'ETag (taille+date du PNG). Si l'image n'a pas changé -> 304 (quasi instantané) ;
+  // sinon elle est re-téléchargée immédiatement. L'aperçu se met ainsi à jour dès
+  // qu'une nouvelle impression régénère la vignette, sans attente de péremption.
+  clearstatcache(true, $path);
+  $etag = '"' . filesize($path) . '-' . filemtime($path) . '"';
   header('Content-Type: image/png');
-  header('Cache-Control: max-age=600'); // la vignette ne change qu'entre deux jobs
+  header('Cache-Control: no-cache, must-revalidate');
+  header('ETag: ' . $etag);
+  $ifNoneMatch = isset($_SERVER['HTTP_IF_NONE_MATCH']) ? trim($_SERVER['HTTP_IF_NONE_MATCH']) : '';
+  if ($ifNoneMatch !== '' && $ifNoneMatch === $etag) {
+    http_response_code(304);
+    exit;
+  }
   header('Content-Length: ' . filesize($path));
   readfile($path);
 } catch (Exception $e) {

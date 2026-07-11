@@ -1,5 +1,9 @@
 # BambuJab Changelog
 
+# 0.7.8 (beta)
+
+- 🖼️ **Schnellere Vorschau-Aktualisierung**: Der feste 10-Minuten-Browser-Cache wird durch ETag-Revalidierung ersetzt. Die Vorschau aktualisiert sich, sobald ein neuer Druck das Vorschaubild neu erzeugt, ohne unnötige erneute Downloads, wenn sich nichts geändert hat (304-Antwort).
+
 # 0.7.7 (beta)
 
 - 🖼️ **Zuverlässigeres Vorschaubild**: Wenn mehrere `.3mf`-Dateien zum Auftragsnamen passen, wählt das Plugin jetzt die exakte Übereinstimmung und dann die neueste Datei (MDTM-Datum) statt der ersten gefundenen — behebt falsche Platten-Vorschauen.

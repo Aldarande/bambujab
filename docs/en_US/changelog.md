@@ -4,6 +4,10 @@
 >
 >If there is no information about an update, it only concerns documentation, translation or text.
 
+# 0.7.8 (beta)
+
+- 🖼️ **Faster thumbnail refresh**: the fixed 10-min browser cache is replaced by ETag revalidation. The preview updates as soon as a new print regenerates the thumbnail, without needless re-downloads when nothing changed (304 response).
+
 # 0.7.7 (beta)
 
 - 🖼️ **More reliable thumbnail**: when several `.3mf` files match the job name, the plugin now picks the exact match, then the most recent file (MDTM date), instead of the first one found — fixes wrong plate previews.
