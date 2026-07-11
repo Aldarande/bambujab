@@ -1,5 +1,9 @@
 # Changelog BambuJab
 
+# 0.7.8 (beta)
+
+- 🖼️ **Anteprima aggiornata più rapidamente**: la cache del browser fissa a 10 min è sostituita dalla rivalidazione ETag. L'anteprima si aggiorna appena una nuova stampa rigenera la miniatura, senza download inutili quando nulla è cambiato (risposta 304).
+
 # 0.7.7 (beta)
 
 - 🖼️ **Anteprima più affidabile**: quando più file `.3mf` corrispondono al nome del lavoro, il plugin ora sceglie la corrispondenza esatta, poi il file più recente (data MDTM), invece del primo trovato — corregge le anteprime del piano errate.

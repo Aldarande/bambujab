@@ -4,6 +4,10 @@
 >
 >S'il n'y a pas d'information sur la mise à jour, c'est qu'elle concerne uniquement de la documentation, une traduction ou du texte.
 
+# 0.7.8 (beta)
+
+- 🖼️ **Vignette rafraîchie plus vite** : le cache navigateur figé (10 min) est remplacé par une revalidation ETag. L'aperçu se met à jour dès qu'une nouvelle impression régénère la vignette, sans re-télécharger inutilement quand rien n'a changé (réponse 304).
+
 # 0.7.7 (beta)
 
 - 🖼️ **Vignette plus fiable** : quand plusieurs fichiers `.3mf` correspondent au nom du job, le plugin choisit désormais la correspondance exacte, puis le fichier le plus récent (date MDTM), au lieu du premier trouvé — corrige les aperçus de plateau erronés.

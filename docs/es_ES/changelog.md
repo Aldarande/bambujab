@@ -1,5 +1,9 @@
 # Changelog BambuJab
 
+# 0.7.8 (beta)
+
+- 🖼️ **Miniatura actualizada más rápido**: la caché fija del navegador de 10 min se sustituye por revalidación ETag. La vista previa se actualiza en cuanto una nueva impresión regenera la miniatura, sin descargas innecesarias cuando nada ha cambiado (respuesta 304).
+
 # 0.7.7 (beta)
 
 - 🖼️ **Miniatura más fiable**: cuando varios archivos `.3mf` coinciden con el nombre del trabajo, el plugin ahora elige la coincidencia exacta y luego el archivo más reciente (fecha MDTM), en lugar del primero encontrado — corrige las vistas previas de bandeja incorrectas.
