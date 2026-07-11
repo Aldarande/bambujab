@@ -4,6 +4,10 @@
 >
 >S'il n'y a pas d'information sur la mise à jour, c'est qu'elle concerne uniquement de la documentation, une traduction ou du texte.
 
+# 0.7.7 (beta)
+
+- 🖼️ **Vignette plus fiable** : quand plusieurs fichiers `.3mf` correspondent au nom du job, le plugin choisit désormais la correspondance exacte, puis le fichier le plus récent (date MDTM), au lieu du premier trouvé — corrige les aperçus de plateau erronés.
+
 # 0.7.6 (beta)
 
 - 🐛 **Correction d'affichage** : lors du rafraîchissement automatique, la carte du widget se repositionnait au centre et recouvrait les autres widgets. Le rafraîchissement ne remplace plus que le contenu (le nœud positionné par la grille Jeedom est préservé).

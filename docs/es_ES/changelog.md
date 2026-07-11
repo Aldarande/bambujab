@@ -1,5 +1,9 @@
 # Changelog BambuJab
 
+# 0.7.7 (beta)
+
+- 🖼️ **Miniatura más fiable**: cuando varios archivos `.3mf` coinciden con el nombre del trabajo, el plugin ahora elige la coincidencia exacta y luego el archivo más reciente (fecha MDTM), en lugar del primero encontrado — corrige las vistas previas de bandeja incorrectas.
+
 # 0.7.6 (beta)
 
 - 🐛 **Corrección de visualización**: durante la actualización automática, la tarjeta del widget se reposicionaba en el centro y cubría los demás widgets. La actualización ahora solo reemplaza el contenido (el nodo posicionado por la cuadrícula de Jeedom se conserva).

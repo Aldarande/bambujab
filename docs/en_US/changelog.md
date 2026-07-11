@@ -4,6 +4,10 @@
 >
 >If there is no information about an update, it only concerns documentation, translation or text.
 
+# 0.7.7 (beta)
+
+- 🖼️ **More reliable thumbnail**: when several `.3mf` files match the job name, the plugin now picks the exact match, then the most recent file (MDTM date), instead of the first one found — fixes wrong plate previews.
+
 # 0.7.6 (beta)
 
 - 🐛 **Display fix**: on auto-refresh, the widget card jumped to the center and covered the other widgets. The refresh now replaces only the content (the node positioned by the Jeedom grid is preserved).
