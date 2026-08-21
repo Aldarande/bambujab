@@ -11,7 +11,7 @@ require_once __DIR__ . '/../../../../core/php/core.inc.php';
 class bambujab extends eqLogic {
 
   const DAEMON_PORT_DEFAULT = 55152;
-  const WIDGET_CSS_VERSION = '060'; // bump pour invalider le cache du CSS widget
+  const WIDGET_CSS_VERSION = '061'; // bump pour invalider le cache du CSS widget
   const ENC_PREFIX = 'enc:';        // marqueur des valeurs de config chiffrées au repos
 
   // Champs de configuration sensibles chiffrés en base (utils::encrypt).
@@ -830,20 +830,19 @@ class bambujab extends eqLogic {
         . htmlspecialchars($hmsMsg !== '' ? $hmsMsg : __('Erreur signalée par l\'imprimante', __FILE__)) . '</div>';
     }
 
-    // CSS externalisé dans desktop/css/bambujab.css. Sur le dashboard, ce fichier
-    // n'est pas chargé automatiquement : on injecte le <link> une seule fois par
-    // rendu (drapeau statique) — un éventuel doublon est dédupliqué par le navigateur.
-    static $cssLinked = false;
-    $cssTag = '';
-    if (!$cssLinked) {
-      $cssTag = '<link rel="stylesheet" href="plugins/bambujab/desktop/css/bambujab.css?v=' . self::WIDGET_CSS_VERSION . '">';
-      $cssLinked = true;
-    }
+    // CSS externalisé dans desktop/css/bambujab.css. Sur le dashboard il n'est pas
+    // chargé automatiquement ET un <link> injecté ici se charge de façon asynchrone :
+    // au premier paint gridStack mesure une carte encore non stylée (quasi vide), la
+    // place, puis quand le CSS arrive la carte grandit -> elle « saute au milieu » et
+    // recouvre les tuiles voisines. Correctif : (1) dimensions critiques posées en
+    // INLINE sur .jbb-wrap/.jbb-card (immunisées contre le timing du CSS) pour que la
+    // cellule ait la bonne taille dès le premier paint, (2) la feuille de style
+    // complète est injectée dans <head> (persistante, hors du nœud re-swappé) depuis
+    // le onload de l'<img> caché plus bas — garanti de s'exécuter, une seule fois.
 
     ob_start(); ?>
-<div class="jbb-wrap" id="jbbW<?php echo $id; ?>">
-<div class="jbb-card" data-state="<?php echo htmlspecialchars($state); ?>">
-  <?php echo $cssTag; ?>
+<div class="jbb-wrap" id="jbbW<?php echo $id; ?>" style="width:100%;max-width:440px;margin:0 auto;box-sizing:border-box;">
+<div class="jbb-card" data-state="<?php echo htmlspecialchars($state); ?>" style="position:relative;box-sizing:border-box;width:100%;min-height:120px;border-radius:16px;padding:16px 18px;">
   <div class="jbb-titlebar">
     <a class="jbb-name" href="index.php?v=d&p=bambujab&m=bambujab&id=<?php echo $id; ?>" title="<?php echo __('Ouvrir la configuration', __FILE__); ?>"><span class="jbb-conn <?php echo $connected === 1 ? 'jbb-conn-ok' : 'jbb-conn-ko'; ?>" title="<?php echo $connected === 1 ? __('Connecté à l\'imprimante', __FILE__) : __('Non connecté à l\'imprimante', __FILE__); ?>"></span><?php echo htmlspecialchars($this->getName()); ?></a>
     <span class="jbb-tools">
@@ -851,7 +850,7 @@ class bambujab extends eqLogic {
       <span class="jbb-tool jbb-camtoggle<?php echo $cameraOn === 1 ? ' jbb-on' : ''; ?>" title="<?php echo __('Caméra : allumer / éteindre le flux', __FILE__); ?>" onclick="(function(el){var id=<?php echo $id; ?>;var w=document.getElementById('jbbCamWrap'+id);var i=document.getElementById('jbbCam'+id);if(!w||!i){return;}var on=(i.getAttribute('src')||'').indexOf('stream.php')!==-1;if(on){i.src='';w.style.display='none';el.classList.remove('jbb-on');}else{w.style.display='block';i.src='plugins/bambujab/core/php/stream.php?id='+id;el.classList.add('jbb-on');}})(this);return false;"><i class="fas fa-video"></i></span>
       <?php } ?>
       <a class="jbb-tool" href="https://ko-fi.com/aldarande" target="_blank" rel="noopener" title="<?php echo __('Faire un don', __FILE__); ?>"><i class="fas fa-mug-hot"></i></a>
-      <span class="jbb-tool" title="<?php echo __('Rafraîchir', __FILE__); ?>" onclick="(function(){var id=<?php echo $id; ?>;try{$.ajax({type:'POST',url:'plugins/bambujab/core/ajax/bambujab.ajax.php',data:{action:'pushall',id:id},dataType:'json'});}catch(e){}setTimeout(function(){try{$.ajax({type:'POST',url:'plugins/bambujab/core/ajax/bambujab.ajax.php',data:{action:'widget',id:id},dataType:'json',success:function(d){if(d&&d.state==='ok'&&d.result){var w=document.getElementById('jbbW'+id);if(w){var t=document.createElement('div');t.innerHTML=d.result;var n=t.querySelector('#jbbW'+id);w.innerHTML=n?n.innerHTML:d.result;}}}});}catch(e){}},1300);})();return false;"><i class="fas fa-sync"></i></span>
+      <span class="jbb-tool" title="<?php echo __('Rafraîchir', __FILE__); ?>" onclick="(function(){var id=<?php echo $id; ?>;try{$.ajax({type:'POST',url:'plugins/bambujab/core/ajax/bambujab.ajax.php',data:{action:'pushall',id:id},dataType:'json'});}catch(e){}setTimeout(function(){try{$.ajax({type:'POST',url:'plugins/bambujab/core/ajax/bambujab.ajax.php',data:{action:'widget',id:id},dataType:'json',success:function(d){if(d&&d.state==='ok'&&d.result){var dup=document.querySelectorAll('#jbbW'+id);for(var j=1;j<dup.length;j++){if(dup[j].parentNode){dup[j].parentNode.removeChild(dup[j]);}}var w=document.getElementById('jbbW'+id);if(w){var t=document.createElement('div');t.innerHTML=d.result;var n=t.querySelector('#jbbW'+id);w.innerHTML=n?n.innerHTML:d.result;}}}});}catch(e){}},1300);})();return false;"><i class="fas fa-sync"></i></span>
     </span>
   </div>
   <?php if ($hasCamera) { ?>
@@ -891,7 +890,7 @@ class bambujab extends eqLogic {
   </div>
   <div class="jbb-ams"><?php echo $chips; ?></div>
 </div>
-<img alt="" style="display:none" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" onload="(function(){var id=<?php echo $id; ?>;window.jbbT=window.jbbT||{};if(window.jbbT[id]){return;}window.jbbT[id]=setInterval(function(){var c=document.getElementById('jbbCam'+id);if(c&&(''+c.getAttribute('src')).indexOf('stream.php')>-1){return;}try{$.ajax({type:'POST',url:'plugins/bambujab/core/ajax/bambujab.ajax.php',data:{action:'widget',id:id},dataType:'json',success:function(d){if(d&&d.state==='ok'&&d.result){var w=document.getElementById('jbbW'+id);if(w){var t=document.createElement('div');t.innerHTML=d.result;var n=t.querySelector('#jbbW'+id);w.innerHTML=n?n.innerHTML:d.result;}}}});}catch(e){}},7000);})();">
+<img alt="" style="display:none" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" onload="(function(){var id=<?php echo $id; ?>;var v='<?php echo self::WIDGET_CSS_VERSION; ?>';var href='plugins/bambujab/desktop/css/bambujab.css?v='+v;var css=document.getElementById('jbbCss');if(!css){css=document.createElement('link');css.id='jbbCss';css.rel='stylesheet';css.href=href;document.head.appendChild(css);}else if(css.getAttribute('href')!==href){css.setAttribute('href',href);}var all=document.querySelectorAll('#jbbW'+id);for(var k=1;k<all.length;k++){if(all[k].parentNode){all[k].parentNode.removeChild(all[k]);}}window.jbbT=window.jbbT||{};if(window.jbbT[id]){return;}window.jbbT[id]=setInterval(function(){var c=document.getElementById('jbbCam'+id);if(c&&(''+c.getAttribute('src')).indexOf('stream.php')>-1){return;}try{$.ajax({type:'POST',url:'plugins/bambujab/core/ajax/bambujab.ajax.php',data:{action:'widget',id:id},dataType:'json',success:function(d){if(d&&d.state==='ok'&&d.result){var dup=document.querySelectorAll('#jbbW'+id);for(var j=1;j<dup.length;j++){if(dup[j].parentNode){dup[j].parentNode.removeChild(dup[j]);}}var w=document.getElementById('jbbW'+id);if(w){var t=document.createElement('div');t.innerHTML=d.result;var n=t.querySelector('#jbbW'+id);w.innerHTML=n?n.innerHTML:d.result;}}}});}catch(e){}},7000);})();">
 </div>
     <?php
     return ob_get_clean();
