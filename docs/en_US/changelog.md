@@ -4,6 +4,10 @@
 >
 >If there is no information about an update, it only concerns documentation, translation or text.
 
+# 0.7.9 (beta)
+
+- 🐛 **Widget display fix**: on dashboard load the card could "jump" to the center and cover the other tiles, and copies could stack up over successive refreshes. Dimensions are now set from the very first paint (no more jump) and duplicates are removed on every refresh.
+
 # 0.7.8 (beta)
 
 - 🖼️ **Faster thumbnail refresh**: the fixed 10-min browser cache is replaced by ETag revalidation. The preview updates as soon as a new print regenerates the thumbnail, without needless re-downloads when nothing changed (304 response).

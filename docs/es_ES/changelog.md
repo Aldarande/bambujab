@@ -1,5 +1,9 @@
 # Changelog BambuJab
 
+# 0.7.9 (beta)
+
+- 🐛 **Corrección de visualización del widget**: al cargar el panel, la tarjeta podía «saltar» al centro y cubrir las demás baldosas, y podían apilarse copias en sucesivas actualizaciones. Ahora las dimensiones se fijan desde el primer render (sin saltos) y los duplicados se eliminan en cada actualización.
+
 # 0.7.8 (beta)
 
 - 🖼️ **Miniatura actualizada más rápido**: la caché fija del navegador de 10 min se sustituye por revalidación ETag. La vista previa se actualiza en cuanto una nueva impresión regenera la miniatura, sin descargas innecesarias cuando nada ha cambiado (respuesta 304).

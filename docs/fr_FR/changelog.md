@@ -4,6 +4,10 @@
 >
 >S'il n'y a pas d'information sur la mise à jour, c'est qu'elle concerne uniquement de la documentation, une traduction ou du texte.
 
+# 0.7.9 (beta)
+
+- 🐛 **Correction d'affichage du widget** : au chargement du tableau de bord, la carte pouvait « sauter » vers le centre et recouvrir les autres tuiles, et des copies pouvaient s'empiler au fil des rafraîchissements. Les dimensions sont désormais fixées dès le premier affichage (plus de saut) et les doublons sont supprimés à chaque rafraîchissement.
+
 # 0.7.8 (beta)
 
 - 🖼️ **Vignette rafraîchie plus vite** : le cache navigateur figé (10 min) est remplacé par une revalidation ETag. L'aperçu se met à jour dès qu'une nouvelle impression régénère la vignette, sans re-télécharger inutilement quand rien n'a changé (réponse 304).

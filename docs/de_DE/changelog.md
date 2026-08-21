@@ -1,5 +1,9 @@
 # BambuJab Changelog
 
+# 0.7.9 (beta)
+
+- 🐛 **Anzeigekorrektur des Widgets**: Beim Laden des Dashboards konnte die Karte in die Mitte „springen" und die anderen Kacheln überdecken, und bei aufeinanderfolgenden Aktualisierungen konnten sich Kopien stapeln. Die Abmessungen werden jetzt schon beim ersten Rendern festgelegt (kein Springen mehr) und Duplikate werden bei jeder Aktualisierung entfernt.
+
 # 0.7.8 (beta)
 
 - 🖼️ **Schnellere Vorschau-Aktualisierung**: Der feste 10-Minuten-Browser-Cache wird durch ETag-Revalidierung ersetzt. Die Vorschau aktualisiert sich, sobald ein neuer Druck das Vorschaubild neu erzeugt, ohne unnötige erneute Downloads, wenn sich nichts geändert hat (304-Antwort).

@@ -1,5 +1,9 @@
 # Changelog BambuJab
 
+# 0.7.9 (beta)
+
+- 🐛 **Correzione di visualizzazione del widget**: al caricamento della dashboard la scheda poteva «saltare» al centro e coprire le altre piastrelle, e potevano accumularsi copie a ogni aggiornamento. Ora le dimensioni sono fissate dal primo render (niente più salti) e i duplicati vengono rimossi a ogni aggiornamento.
+
 # 0.7.8 (beta)
 
 - 🖼️ **Anteprima aggiornata più rapidamente**: la cache del browser fissa a 10 min è sostituita dalla rivalidazione ETag. L'anteprima si aggiorna appena una nuova stampa rigenera la miniatura, senza download inutili quando nulla è cambiato (risposta 304).
