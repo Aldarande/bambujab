@@ -4,6 +4,10 @@
 >
 >S'il n'y a pas d'information sur la mise à jour, c'est qu'elle concerne uniquement de la documentation, une traduction ou du texte.
 
+# 0.7.10 (beta)
+
+- ✨ **Rafraîchissement du widget sans clignotement** : la carte n'est redessinée que lorsque les données changent réellement. Fini le clignotement récurrent quand l'imprimante est en veille ou que rien ne bouge ; pendant l'impression, la mise à jour reste au rythme des changements.
+
 # 0.7.9 (beta)
 
 - 🐛 **Correction d'affichage du widget** : au chargement du tableau de bord, la carte pouvait « sauter » vers le centre et recouvrir les autres tuiles, et des copies pouvaient s'empiler au fil des rafraîchissements. Les dimensions sont désormais fixées dès le premier affichage (plus de saut) et les doublons sont supprimés à chaque rafraîchissement.

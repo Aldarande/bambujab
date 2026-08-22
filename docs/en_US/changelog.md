@@ -4,6 +4,10 @@
 >
 >If there is no information about an update, it only concerns documentation, translation or text.
 
+# 0.7.10 (beta)
+
+- ✨ **Flicker-free widget refresh**: the card is redrawn only when the data actually changes. No more recurring flicker when the printer is idle or nothing moves; while printing, updates still follow the pace of changes.
+
 # 0.7.9 (beta)
 
 - 🐛 **Widget display fix**: on dashboard load the card could "jump" to the center and cover the other tiles, and copies could stack up over successive refreshes. Dimensions are now set from the very first paint (no more jump) and duplicates are removed on every refresh.

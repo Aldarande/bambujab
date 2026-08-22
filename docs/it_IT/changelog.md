@@ -1,5 +1,9 @@
 # Changelog BambuJab
 
+# 0.7.10 (beta)
+
+- ✨ **Aggiornamento del widget senza sfarfallio**: la scheda viene ridisegnata solo quando i dati cambiano davvero. Basta sfarfallio ricorrente quando la stampante è in pausa o nulla si muove; durante la stampa, gli aggiornamenti seguono comunque il ritmo dei cambiamenti.
+
 # 0.7.9 (beta)
 
 - 🐛 **Correzione di visualizzazione del widget**: al caricamento della dashboard la scheda poteva «saltare» al centro e coprire le altre piastrelle, e potevano accumularsi copie a ogni aggiornamento. Ora le dimensioni sono fissate dal primo render (niente più salti) e i duplicati vengono rimossi a ogni aggiornamento.

@@ -1,5 +1,9 @@
 # BambuJab Changelog
 
+# 0.7.10 (beta)
+
+- ✨ **Flimmerfreie Widget-Aktualisierung**: Die Karte wird nur neu gezeichnet, wenn sich die Daten tatsächlich ändern. Kein wiederkehrendes Flackern mehr, wenn der Drucker im Ruhezustand ist oder sich nichts bewegt; während des Drucks folgen die Aktualisierungen weiterhin dem Rhythmus der Änderungen.
+
 # 0.7.9 (beta)
 
 - 🐛 **Anzeigekorrektur des Widgets**: Beim Laden des Dashboards konnte die Karte in die Mitte „springen" und die anderen Kacheln überdecken, und bei aufeinanderfolgenden Aktualisierungen konnten sich Kopien stapeln. Die Abmessungen werden jetzt schon beim ersten Rendern festgelegt (kein Springen mehr) und Duplikate werden bei jeder Aktualisierung entfernt.

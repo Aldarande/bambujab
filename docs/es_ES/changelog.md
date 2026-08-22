@@ -1,5 +1,9 @@
 # Changelog BambuJab
 
+# 0.7.10 (beta)
+
+- ✨ **Actualización del widget sin parpadeo**: la tarjeta solo se vuelve a dibujar cuando los datos cambian realmente. Se acabó el parpadeo recurrente cuando la impresora está en reposo o nada se mueve; durante la impresión, las actualizaciones siguen el ritmo de los cambios.
+
 # 0.7.9 (beta)
 
 - 🐛 **Corrección de visualización del widget**: al cargar el panel, la tarjeta podía «saltar» al centro y cubrir las demás baldosas, y podían apilarse copias en sucesivas actualizaciones. Ahora las dimensiones se fijan desde el primer render (sin saltos) y los duplicados se eliminan en cada actualización.
