@@ -5,10 +5,17 @@
 
 require_once dirname(__FILE__) . '/../../../core/php/core.inc.php';
 include_file('core', 'authentification', 'php');
-// Configuration du démon (port socket) : réservé aux administrateurs.
+/* Garde d'accès : le panneau de configuration est réservé aux administrateurs.
+ * Ni include_file('desktop', '404', 'php') (le fichier n'existe plus en Jeedom 4.6)
+ * ni throw (la branche `configure` d'index.php n'a pas de try/catch) : les deux
+ * produisent une fatale PHP. `return` interrompt proprement l'inclusion.
+ */
 if (!isConnect('admin')) {
-  include_file('desktop', '404', 'php');
-  die();
+  if (!headers_sent()) {
+    http_response_code(401);
+  }
+  echo '<div class="alert alert-danger">{{401 - Accès non autorisé}}</div>';
+  return;
 }
 ?>
 <form class="form-horizontal">
