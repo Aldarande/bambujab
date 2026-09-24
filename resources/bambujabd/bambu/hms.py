@@ -168,4 +168,9 @@ def decode_hms(report, lang="fr"):
             max_rank = rank
             max_label = sev_label
 
+    # Alerte présente mais sévérité hors table (bits inattendus, code illisible) :
+    # renvoyer "Aucune" masquerait le badge alors qu'un message existe.
+    if messages and max_label == "Aucune":
+        max_label = "Inconnu"
+
     return (max_label, " | ".join(messages))

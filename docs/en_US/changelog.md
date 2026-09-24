@@ -4,6 +4,23 @@
 >
 >If there is no information about an update, it only concerns documentation, translation or text.
 
+# 0.7.11 (beta)
+
+- ⚡ **Much lighter dashboard**: the widget no longer polls the server while the tab is in the background, slows down to 60 s when the printer is idle (7 s while printing), and now asks only for a fingerprint of the state — the full card is sent again only when something actually changed. A dashboard left open all day costs almost nothing.
+- 🐛 **“Stop” button fixed**: the apostrophe in the French confirmation message broke the handler and the button did nothing.
+- 🐛 **External spool**: filament on the spool holder (or AMS lite) is reported again on printers without an AMS, and during partial updates.
+- 🐛 **HMS alert with an unknown severity**: it is now displayed instead of being reported as “None” while a message existed.
+- 🔒 **HTTPS callback**: the certificate is verified when the callback URL points outside the local network (no change for a standard Jeedom install).
+- 🧪 **Automated tests**: print states, BambuLab error decoding, AMS/filaments and the widget refresh loop are now checked on every change.
+
+# 0.7.10 (beta)
+
+- ✨ **Flicker-free widget refresh**: the card is redrawn only when the data actually changes. No more recurring flicker when the printer is idle or nothing moves; while printing, updates still follow the pace of changes.
+
+# 0.7.9 (beta)
+
+- 🐛 **Widget display fix**: on dashboard load the card could "jump" to the center and cover the other tiles, and copies could stack up over successive refreshes. Dimensions are now set from the very first paint (no more jump) and duplicates are removed on every refresh.
+
 # 0.7.8 (beta)
 
 - 🖼️ **Faster thumbnail refresh**: the fixed 10-min browser cache is replaced by ETag revalidation. The preview updates as soon as a new print regenerates the thumbnail, without needless re-downloads when nothing changed (304 response).

@@ -1,4 +1,8 @@
-# BambuJab — dépendances Python du démon (LAN-only, monitoring v0.1)
-# Versions pinnées (sécurité + reproductibilité). Installées en venv par install_dep.sh.
+# BambuJab — dépendances Python du démon. Installées en venv par install_dep.sh.
+#
+# paho-mqtt : pin dur. L'API a changé entre 1.x et 2.x (CallbackAPIVersion) et le
+# client MQTT du plugin cible 2.x ; on fige la version validée.
 paho-mqtt==2.1.0
-requests==2.32.3
+# requests : plage plutôt que pin dur, pour récupérer les correctifs de sécurité
+# des versions correctives sans attendre une release du plugin. Majeure exclue.
+requests>=2.32.3,<3

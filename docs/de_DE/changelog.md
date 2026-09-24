@@ -1,5 +1,22 @@
 # BambuJab Changelog
 
+# 0.7.11 (beta)
+
+- ⚡ **Deutlich leichteres Dashboard**: Das Widget fragt den Server nicht mehr ab, wenn der Tab im Hintergrund liegt, verlangsamt auf 60 s im Ruhezustand des Druckers (7 s während des Drucks) und fordert nur noch einen Fingerabdruck des Zustands an — die vollständige Karte wird nur übertragen, wenn sich wirklich etwas geändert hat. Ein dauerhaft geöffnetes Dashboard kostet fast nichts mehr.
+- 🐛 **Schaltfläche „Stoppen“ repariert**: Der Apostroph in der französischen Bestätigungsmeldung zerstörte den Handler, die Schaltfläche tat nichts.
+- 🐛 **Externe Spule**: Das Filament des Spulenhalters (oder des AMS lite) wird auf Druckern ohne AMS und bei Teilaktualisierungen wieder gemeldet.
+- 🐛 **HMS-Warnung mit unbekannter Schwere**: Sie wird jetzt angezeigt, statt als „Keine“ gemeldet zu werden, obwohl eine Meldung vorlag.
+- 🔒 **HTTPS-Callback**: Das Zertifikat wird geprüft, wenn die Rückruf-URL außerhalb des lokalen Netzes liegt (keine Änderung für eine übliche Jeedom-Installation).
+- 🧪 **Automatisierte Tests**: Druckzustände, Dekodierung der BambuLab-Fehler, AMS/Filamente und die Aktualisierungsschleife des Widgets werden bei jeder Änderung geprüft.
+
+# 0.7.10 (beta)
+
+- ✨ **Flimmerfreie Widget-Aktualisierung**: Die Karte wird nur neu gezeichnet, wenn sich die Daten tatsächlich ändern. Kein wiederkehrendes Flackern mehr, wenn der Drucker im Ruhezustand ist oder sich nichts bewegt; während des Drucks folgen die Aktualisierungen weiterhin dem Rhythmus der Änderungen.
+
+# 0.7.9 (beta)
+
+- 🐛 **Anzeigekorrektur des Widgets**: Beim Laden des Dashboards konnte die Karte in die Mitte „springen" und die anderen Kacheln überdecken, und bei aufeinanderfolgenden Aktualisierungen konnten sich Kopien stapeln. Die Abmessungen werden jetzt schon beim ersten Rendern festgelegt (kein Springen mehr) und Duplikate werden bei jeder Aktualisierung entfernt.
+
 # 0.7.8 (beta)
 
 - 🖼️ **Schnellere Vorschau-Aktualisierung**: Der feste 10-Minuten-Browser-Cache wird durch ETag-Revalidierung ersetzt. Die Vorschau aktualisiert sich, sobald ein neuer Druck das Vorschaubild neu erzeugt, ohne unnötige erneute Downloads, wenn sich nichts geändert hat (304-Antwort).

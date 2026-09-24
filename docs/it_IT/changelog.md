@@ -1,5 +1,22 @@
 # Changelog BambuJab
 
+# 0.7.11 (beta)
+
+- ⚡ **Dashboard molto più leggera**: il widget non interroga più il server quando la scheda è in secondo piano, rallenta a 60 s con la stampante ferma (7 s durante la stampa) e ora chiede solo un'impronta dello stato: la scheda completa viene ritrasmessa solo se qualcosa è davvero cambiato. Una dashboard lasciata aperta tutto il giorno non costa quasi nulla.
+- 🐛 **Pulsante «Interrompi» riparato**: l'apostrofo nel messaggio di conferma francese rompeva il gestore e il pulsante non faceva nulla.
+- 🐛 **Bobina esterna**: il filamento del portabobina (o dell'AMS lite) torna a essere riportato sulle stampanti senza AMS e negli aggiornamenti parziali.
+- 🐛 **Avviso HMS con gravità sconosciuta**: ora viene mostrato invece di essere annunciato come «Nessuno» pur essendoci un messaggio.
+- 🔒 **Callback HTTPS**: il certificato viene verificato quando l'URL di ritorno punta fuori dalla rete locale (nessun cambiamento per un'installazione Jeedom classica).
+- 🧪 **Test automatizzati**: stati di stampa, decodifica degli errori BambuLab, AMS/filamenti e ciclo di aggiornamento del widget vengono verificati a ogni modifica.
+
+# 0.7.10 (beta)
+
+- ✨ **Aggiornamento del widget senza sfarfallio**: la scheda viene ridisegnata solo quando i dati cambiano davvero. Basta sfarfallio ricorrente quando la stampante è in pausa o nulla si muove; durante la stampa, gli aggiornamenti seguono comunque il ritmo dei cambiamenti.
+
+# 0.7.9 (beta)
+
+- 🐛 **Correzione di visualizzazione del widget**: al caricamento della dashboard la scheda poteva «saltare» al centro e coprire le altre piastrelle, e potevano accumularsi copie a ogni aggiornamento. Ora le dimensioni sono fissate dal primo render (niente più salti) e i duplicati vengono rimossi a ogni aggiornamento.
+
 # 0.7.8 (beta)
 
 - 🖼️ **Anteprima aggiornata più rapidamente**: la cache del browser fissa a 10 min è sostituita dalla rivalidazione ETag. L'anteprima si aggiorna appena una nuova stampa rigenera la miniatura, senza download inutili quando nulla è cambiato (risposta 304).

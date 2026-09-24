@@ -19,6 +19,7 @@ resources/venv/
 resources/python_venv/
 resources/*venv*/
 **/__pycache__/
+.pytest_cache/
 *.pyc
 *.pid
 snap_*.jpg

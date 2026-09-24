@@ -36,8 +36,21 @@ def map_ams(report):
     Ne renvoie que ce qui est présent (création dynamique côté PHP).
     """
     p = report.get("print", report) if isinstance(report, dict) else {}
-    ams_root = p.get("ams")
     out = {}
+
+    # Slot externe (spool holder / AMS-lite) : vt_tray. Traité avant les unités
+    # AMS, car il vit hors du bloc 'ams' : une imprimante sans AMS, ou un report
+    # partiel ne portant que ce bloc, doit quand même remonter sa bobine externe.
+    vt = p.get("vt_tray")
+    if isinstance(vt, dict):
+        ttype = vt.get("tray_type")
+        if ttype is not None:
+            out["vt_tray_type"] = ttype if ttype != "" else "Vide"
+        color = _norm_color(vt.get("tray_color"))
+        if color is not None:
+            out["vt_tray_color"] = color
+
+    ams_root = p.get("ams")
     if not isinstance(ams_root, dict):
         return out
 
@@ -96,15 +109,5 @@ def map_ams(report):
                             out["ams_%d_%d_remain" % (u, s)] = float(remain)
                         except (TypeError, ValueError):
                             pass
-
-    # Slot externe (spool holder / AMS-lite) : vt_tray
-    vt = p.get("vt_tray")
-    if isinstance(vt, dict):
-        ttype = vt.get("tray_type")
-        if ttype is not None:
-            out["vt_tray_type"] = ttype if ttype != "" else "Vide"
-        color = _norm_color(vt.get("tray_color"))
-        if color is not None:
-            out["vt_tray_color"] = color
 
     return out

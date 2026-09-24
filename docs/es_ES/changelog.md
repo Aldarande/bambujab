@@ -1,5 +1,22 @@
 # Changelog BambuJab
 
+# 0.7.11 (beta)
+
+- ⚡ **Panel mucho más ligero**: el widget ya no consulta al servidor cuando la pestaña está en segundo plano, espacia sus consultas a 60 s con la impresora en reposo (7 s durante la impresión) y ahora solo pide una huella del estado: la tarjeta completa se reenvía únicamente si algo ha cambiado de verdad. Un panel abierto todo el día ya casi no cuesta nada.
+- 🐛 **Botón «Detener» reparado**: el apóstrofo del mensaje de confirmación en francés rompía el controlador y el botón no hacía nada.
+- 🐛 **Bobina externa**: el filamento del soporte de bobina (o del AMS lite) vuelve a reportarse en impresoras sin AMS y en las actualizaciones parciales.
+- 🐛 **Alerta HMS de gravedad desconocida**: ahora se muestra en lugar de anunciarse como «Ninguna» cuando existía un mensaje.
+- 🔒 **Callback HTTPS**: el certificado se verifica cuando la URL de retorno apunta fuera de la red local (sin cambios para una instalación Jeedom habitual).
+- 🧪 **Pruebas automatizadas**: estados de impresión, decodificación de errores BambuLab, AMS/filamentos y el bucle de actualización del widget se verifican en cada cambio.
+
+# 0.7.10 (beta)
+
+- ✨ **Actualización del widget sin parpadeo**: la tarjeta solo se vuelve a dibujar cuando los datos cambian realmente. Se acabó el parpadeo recurrente cuando la impresora está en reposo o nada se mueve; durante la impresión, las actualizaciones siguen el ritmo de los cambios.
+
+# 0.7.9 (beta)
+
+- 🐛 **Corrección de visualización del widget**: al cargar el panel, la tarjeta podía «saltar» al centro y cubrir las demás baldosas, y podían apilarse copias en sucesivas actualizaciones. Ahora las dimensiones se fijan desde el primer render (sin saltos) y los duplicados se eliminan en cada actualización.
+
 # 0.7.8 (beta)
 
 - 🖼️ **Miniatura actualizada más rápido**: la caché fija del navegador de 10 min se sustituye por revalidación ETag. La vista previa se actualiza en cuanto una nueva impresión regenera la miniatura, sin descargas innecesarias cuando nada ha cambiado (respuesta 304).
