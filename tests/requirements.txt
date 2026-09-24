@@ -1,0 +1,3 @@
+# Dépendances de test, séparées de resources/requirements.txt (démon) :
+# la CI n'installe que ce dont elle a besoin.
+pytest>=8.0,<9

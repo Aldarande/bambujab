@@ -1,0 +1,100 @@
+name: Tests (pytest + node + shellcheck)
+
+# Trois garde-fous exécutables sans imprimante ni compte BambuLab :
+#
+#   * pytest     — fonctions pures du démon : traduction des états d'impression,
+#                  décodage des erreurs HMS (« erreurs traduites en clair » est
+#                  une promesse du plugin), lecture des AMS/filaments, détection
+#                  du modèle, et décision de vérification TLS du callback.
+#                  Aucun accès réseau : la base HMS est injectée en mémoire.
+#   * node       — boucle de rafraîchissement du widget (desktop/js). Elle décide
+#                  du nombre de requêtes qu'un dashboard ouvert envoie au serveur ;
+#                  DOM, jQuery et horloge sont simulés, rien ne sort de la CI.
+#   * shellcheck — resources/install_dep.sh. C'est le script le plus difficile à
+#                  tester (il crée un venv sur la machine de l'utilisateur) et
+#                  celui dont un échec coûte le plus cher : plugin sans
+#                  dépendances, démon qui ne démarre pas.
+on:
+  push:
+    branches: [works, dev, main]
+    paths:
+      - 'resources/**'
+      - 'tests/**'
+      - 'desktop/js/**'
+      - pytest.ini
+      - .github/workflows/tests.yml
+  pull_request:
+    paths:
+      - 'resources/**'
+      - 'tests/**'
+      - 'desktop/js/**'
+      - pytest.ini
+      - .github/workflows/tests.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  pytest:
+    name: pytest
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # 3.11 = version du venv créé par install_dep.sh sur Debian 12 (cible Jeedom).
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+
+      - name: Installer les dépendances du démon et des tests
+        run: |
+          pip install -r resources/requirements.txt
+          pip install -r tests/requirements.txt
+
+      - name: pytest
+        run: pytest -q
+
+  widget-js:
+    name: node (boucle du widget)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # node est préinstallé sur les runners ubuntu-latest et le test n'a aucune
+      # dépendance : pas de npm install, pas de lockfile à maintenir.
+      - name: Version de node
+        run: node --version
+
+      - name: Syntaxe du JS du widget
+        run: node --check desktop/js/bambujab.widget.js
+
+      - name: Boucle de rafraîchissement
+        run: node tests/js/widget.test.js
+
+  shellcheck:
+    name: shellcheck (install_dep.sh)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # shellcheck est préinstallé sur les runners ubuntu-latest : pas d'action
+      # tierce à faire entrer dans la chaîne d'approvisionnement de la CI.
+      - name: Version de shellcheck
+        run: shellcheck --version
+
+      # Bloquant à partir de « warning » : c'est le niveau où se trouvent les
+      # défauts qui cassent réellement un installeur (rm -rf sur une variable
+      # vide, cd sans garde, expansion non quotée en position dangereuse).
+      - name: shellcheck (bloquant, severity=warning)
+        run: shellcheck --severity=warning --color=always resources/install_dep.sh
+
+      # Informatif : le niveau « style » reste visible dans le log sans bloquer.
+      - name: shellcheck (informatif, toutes sévérités)
+        if: always()
+        run: shellcheck --color=always resources/install_dep.sh || true

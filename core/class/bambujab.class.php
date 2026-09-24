@@ -12,6 +12,7 @@ class bambujab extends eqLogic {
 
   const DAEMON_PORT_DEFAULT = 55152;
   const WIDGET_CSS_VERSION = '061'; // bump pour invalider le cache du CSS widget
+  const WIDGET_JS_VERSION  = '001'; // bump pour invalider le cache du JS widget
   const ENC_PREFIX = 'enc:';        // marqueur des valeurs de config chiffrées au repos
 
   // Champs de configuration sensibles chiffrés en base (utils::encrypt).
@@ -717,6 +718,91 @@ class bambujab extends eqLogic {
     return is_object($cmd) ? $cmd->execCmd() : $default;
   }
 
+  /** États d'impression pendant lesquels la carte doit être rafraîchie vite. */
+  private static $_ACTIVE_STATES = array('Impression', 'En pause', 'Préparation', 'Découpe');
+
+  /**
+   * Échappe un texte destiné à un littéral JS entre apostrophes, lui-même placé
+   * dans un attribut HTML entre guillemets (onclick="…confirm('ici')…").
+   *
+   * Sans cela une traduction contenant une apostrophe — « Arrêter l'impression ? »
+   * en français — ferme le littéral et rend tout le gestionnaire inopérant : le
+   * navigateur échoue à le compiler, sans message, et le bouton ne fait plus rien.
+   */
+  private static function jsAttr($text) {
+    return htmlspecialchars(addslashes($text), ENT_QUOTES);
+  }
+
+  /**
+   * Valeurs effectivement dessinées par la carte, arrondies comme à l'écran.
+   *
+   * Deux relevés qui donnent le même dessin doivent produire la même signature :
+   * on ignore donc les commandes info que la carte n'affiche pas (signal Wi-Fi,
+   * ventilateurs, niveaux de bobine, humidité AMS…) — sinon le moindre
+   * frémissement du Wi-Fi déclencherait un re-rendu complet — et on arrondit
+   * températures et progression à l'entier, comme le fait le rendu.
+   *
+   * À garder en phase avec toHtml().
+   */
+  private function widgetData() {
+    $round = function ($value) { return (string)round((float)$value); };
+    $data = array(
+      'name'      => $this->getName(),
+      'enable'    => (int)$this->getIsEnable(),
+      'mode'      => (string)$this->getConfiguration('conn_mode', 'lan'),
+      'wtype'     => (string)$this->getConfiguration('widget_type', 'custom'),
+      // Seule la présence d'un accès local compte, jamais le secret lui-même.
+      'local'     => (trim((string)$this->getConfiguration('ip', '')) !== ''
+                      || trim((string)$this->getConfiguration('camera_ip', '')) !== '') ? 1 : 0,
+      'code'      => (trim((string)$this->getConfiguration('access_code', '')) !== '') ? 1 : 0,
+      'state'     => (string)$this->val('printer_state', '—'),
+      'stage'     => (string)$this->val('stage', ''),
+      'progress'  => $round($this->val('progress', 0)),
+      'layer'     => (int)$this->val('layer_num', 0),
+      'total'     => (int)$this->val('total_layer', 0),
+      'remain'    => (int)$this->val('remaining_time', 0),
+      'online'    => (int)$this->val('online', 0),
+      'connected' => (int)$this->val('connected', 0),
+      'reachable' => (int)$this->val('reachable', 1),
+      'light'     => (int)$this->val('light_state', 0),
+      'model'     => (string)$this->val('model', 'BambuLab'),
+      'nozzle'    => $round($this->val('nozzle_temp', 0)),
+      'nozzleT'   => $round($this->val('nozzle_target', 0)),
+      'bed'       => $round($this->val('bed_temp', 0)),
+      'bedT'      => $round($this->val('bed_target', 0)),
+      'hms'       => (string)$this->val('hms_severity', 'Aucune'),
+      'hmsMsg'    => (string)$this->val('hms_messages', ''),
+      'camera'    => (int)$this->val('camera_on', 0),
+      'job'       => (string)$this->val('job_name', ''),
+    );
+    // Pastilles de filament : seules la couleur et le type sont dessinés.
+    foreach ($this->getCmd('info') as $cmd) {
+      $lid = $cmd->getLogicalId();
+      if (preg_match('/^(?:ams_\d+_\d+|vt_tray)_(?:color|type)$/', $lid)) {
+        $data[$lid] = (string)$cmd->execCmd();
+      }
+    }
+    return $data;
+  }
+
+  /**
+   * Signature de l'état affiché + drapeau « impression en cours ».
+   *
+   * Sert au rafraîchissement du dashboard : le navigateur sonde cette signature
+   * (32 caractères) et ne redemande le HTML complet que si elle a bougé. Le
+   * coût serveur se limite à la lecture des valeurs de commandes — pas de
+   * rendu, pas de traduction, pas de construction de chaînes.
+   *
+   * @return array{sig:string, active:int}
+   */
+  public function widgetSignature() {
+    $data = $this->widgetData();
+    return array(
+      'sig'    => md5(json_encode($data)),
+      'active' => in_array($data['state'], self::$_ACTIVE_STATES, true) ? 1 : 0,
+    );
+  }
+
   public function toHtml($_version = 'dashboard') {
     // Type de widget : 'custom' (carte BambuJab, défaut) ou 'standard' (widget Jeedom
     // natif, entièrement configurable via l'interface de widget de Jeedom).
@@ -830,6 +916,10 @@ class bambujab extends eqLogic {
         . htmlspecialchars($hmsMsg !== '' ? $hmsMsg : __('Erreur signalée par l\'imprimante', __FILE__)) . '</div>';
     }
 
+    // Signature de l'état affiché : posée sur le conteneur et comparée par le JS
+    // de rafraîchissement (voir desktop/js/bambujab.widget.js).
+    $sigData = $this->widgetSignature();
+
     // CSS externalisé dans desktop/css/bambujab.css. Sur le dashboard il n'est pas
     // chargé automatiquement ET un <link> injecté ici se charge de façon asynchrone :
     // au premier paint gridStack mesure une carte encore non stylée (quasi vide), la
@@ -841,7 +931,7 @@ class bambujab extends eqLogic {
     // le onload de l'<img> caché plus bas — garanti de s'exécuter, une seule fois.
 
     ob_start(); ?>
-<div class="jbb-wrap" id="jbbW<?php echo $id; ?>" style="width:100%;max-width:440px;margin:0 auto;box-sizing:border-box;">
+<div class="jbb-wrap" id="jbbW<?php echo $id; ?>" data-sig="<?php echo $sigData['sig']; ?>" style="width:100%;max-width:440px;margin:0 auto;box-sizing:border-box;">
 <div class="jbb-card" data-state="<?php echo htmlspecialchars($state); ?>" style="position:relative;box-sizing:border-box;width:100%;min-height:120px;border-radius:16px;padding:16px 18px;">
   <div class="jbb-titlebar">
     <a class="jbb-name" href="index.php?v=d&p=bambujab&m=bambujab&id=<?php echo $id; ?>" title="<?php echo __('Ouvrir la configuration', __FILE__); ?>"><span class="jbb-conn <?php echo $connected === 1 ? 'jbb-conn-ok' : 'jbb-conn-ko'; ?>" title="<?php echo $connected === 1 ? __('Connecté à l\'imprimante', __FILE__) : __('Non connecté à l\'imprimante', __FILE__); ?>"></span><?php echo htmlspecialchars($this->getName()); ?></a>
@@ -850,7 +940,7 @@ class bambujab extends eqLogic {
       <span class="jbb-tool jbb-camtoggle<?php echo $cameraOn === 1 ? ' jbb-on' : ''; ?>" title="<?php echo __('Caméra : allumer / éteindre le flux', __FILE__); ?>" onclick="(function(el){var id=<?php echo $id; ?>;var w=document.getElementById('jbbCamWrap'+id);var i=document.getElementById('jbbCam'+id);if(!w||!i){return;}var on=(i.getAttribute('src')||'').indexOf('stream.php')!==-1;if(on){i.src='';w.style.display='none';el.classList.remove('jbb-on');}else{w.style.display='block';i.src='plugins/bambujab/core/php/stream.php?id='+id;el.classList.add('jbb-on');}})(this);return false;"><i class="fas fa-video"></i></span>
       <?php } ?>
       <a class="jbb-tool" href="https://ko-fi.com/aldarande" target="_blank" rel="noopener" title="<?php echo __('Faire un don', __FILE__); ?>"><i class="fas fa-mug-hot"></i></a>
-      <span class="jbb-tool" title="<?php echo __('Rafraîchir', __FILE__); ?>" onclick="(function(){var id=<?php echo $id; ?>;try{$.ajax({type:'POST',url:'plugins/bambujab/core/ajax/bambujab.ajax.php',data:{action:'pushall',id:id},dataType:'json'});}catch(e){}setTimeout(function(){try{$.ajax({type:'POST',url:'plugins/bambujab/core/ajax/bambujab.ajax.php',data:{action:'widget',id:id},dataType:'json',success:function(d){if(d&&d.state==='ok'&&d.result){var dup=document.querySelectorAll('#jbbW'+id);for(var j=1;j<dup.length;j++){if(dup[j].parentNode){dup[j].parentNode.removeChild(dup[j]);}}var w=document.getElementById('jbbW'+id);if(w){var t=document.createElement('div');t.innerHTML=d.result;var n=t.querySelector('#jbbW'+id);w.innerHTML=n?n.innerHTML:d.result;}}}});}catch(e){}},1300);})();return false;"><i class="fas fa-sync"></i></span>
+      <span class="jbb-tool" title="<?php echo __('Rafraîchir', __FILE__); ?>" onclick="(function(){var id=<?php echo $id; ?>;try{$.ajax({type:'POST',url:'plugins/bambujab/core/ajax/bambujab.ajax.php',data:{action:'pushall',id:id},dataType:'json'});}catch(e){}setTimeout(function(){if(window.jbbWidget){window.jbbWidget.refresh(id);}},1300);})();return false;"><i class="fas fa-sync"></i></span>
     </span>
   </div>
   <?php if ($hasCamera) { ?>
@@ -881,7 +971,7 @@ class bambujab extends eqLogic {
     <?php } else { ?>
       <span class="jbb-abtn" onclick="(function(){<?php echo $doAct('resume'); ?>})();return false;">▶ <?php echo __('Reprendre', __FILE__); ?></span>
     <?php } ?>
-    <span class="jbb-abtn jbb-stop" onclick="(function(){if(!confirm('<?php echo __('Arrêter l\'impression ?', __FILE__); ?>'))return;<?php echo $doAct('stop'); ?>})();return false;">⏹ <?php echo __('Arrêter', __FILE__); ?></span>
+    <span class="jbb-abtn jbb-stop" onclick="(function(){if(!confirm('<?php echo self::jsAttr(__('Arrêter l\'impression ?', __FILE__)); ?>'))return;<?php echo $doAct('stop'); ?>})();return false;">⏹ <?php echo __('Arrêter', __FILE__); ?></span>
   </div>
   <?php } ?>
   <div class="jbb-temps">
@@ -890,7 +980,15 @@ class bambujab extends eqLogic {
   </div>
   <div class="jbb-ams"><?php echo $chips; ?></div>
 </div>
-<img alt="" style="display:none" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" onload="(function(){var id=<?php echo $id; ?>;var v='<?php echo self::WIDGET_CSS_VERSION; ?>';var href='plugins/bambujab/desktop/css/bambujab.css?v='+v;var css=document.getElementById('jbbCss');if(!css){css=document.createElement('link');css.id='jbbCss';css.rel='stylesheet';css.href=href;document.head.appendChild(css);}else if(css.getAttribute('href')!==href){css.setAttribute('href',href);}var all=document.querySelectorAll('#jbbW'+id);for(var k=1;k<all.length;k++){if(all[k].parentNode){all[k].parentNode.removeChild(all[k]);}}window.jbbT=window.jbbT||{};if(window.jbbT[id]){return;}window.jbbT[id]=setInterval(function(){var c=document.getElementById('jbbCam'+id);if(c&&(''+c.getAttribute('src')).indexOf('stream.php')>-1){return;}try{$.ajax({type:'POST',url:'plugins/bambujab/core/ajax/bambujab.ajax.php',data:{action:'widget',id:id},dataType:'json',success:function(d){if(d&&d.state==='ok'&&d.result){var w0=document.getElementById('jbbW'+id);if(w0&&w0.getAttribute('data-sig')===d.result){return;}var dup=document.querySelectorAll('#jbbW'+id);for(var j=1;j<dup.length;j++){if(dup[j].parentNode){dup[j].parentNode.removeChild(dup[j]);}}var w=document.getElementById('jbbW'+id);if(w){var t=document.createElement('div');t.innerHTML=d.result;var n=t.querySelector('#jbbW'+id);w.innerHTML=n?n.innerHTML:d.result;w.setAttribute('data-sig',d.result);}}}});}catch(e){}},7000);})();">
+<?php
+  // Amorce minimale, exécutée au premier paint de la carte (onload d'un GIF vide,
+  // garanti de s'exécuter même quand le HTML est injecté par innerHTML) :
+  //   1. feuille de style posée dans <head> — persistante, hors du nœud re-swappé ;
+  //   2. dédoublonnage des cartes laissées par gridStack (avant tout re-rendu) ;
+  //   3. enregistrement auprès du moteur de rafraîchissement, chargé une seule
+  //      fois par page depuis desktop/js/bambujab.widget.js.
+  ?>
+<img alt="" style="display:none" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" onload="(function(){var id=<?php echo $id; ?>;var href='plugins/bambujab/desktop/css/bambujab.css?v=<?php echo self::WIDGET_CSS_VERSION; ?>';var css=document.getElementById('jbbCss');if(!css){css=document.createElement('link');css.id='jbbCss';css.rel='stylesheet';css.href=href;document.head.appendChild(css);}else if(css.getAttribute('href')!==href){css.setAttribute('href',href);}var all=document.querySelectorAll('#jbbW'+id);for(var k=1;k<all.length;k++){if(all[k].parentNode){all[k].parentNode.removeChild(all[k]);}}(window.jbbInit=window.jbbInit||[]).push([id,'<?php echo $sigData['sig']; ?>',<?php echo (int)$sigData['active']; ?>]);if(!document.getElementById('jbbJs')){var s=document.createElement('script');s.id='jbbJs';s.src='plugins/bambujab/desktop/js/bambujab.widget.js?v=<?php echo self::WIDGET_JS_VERSION; ?>';document.head.appendChild(s);}})();">
 </div>
     <?php
     return ob_get_clean();

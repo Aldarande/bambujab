@@ -1,5 +1,14 @@
 # Changelog BambuJab
 
+# 0.7.11 (beta)
+
+- ⚡ **Dashboard molto più leggera**: il widget non interroga più il server quando la scheda è in secondo piano, rallenta a 60 s con la stampante ferma (7 s durante la stampa) e ora chiede solo un'impronta dello stato: la scheda completa viene ritrasmessa solo se qualcosa è davvero cambiato. Una dashboard lasciata aperta tutto il giorno non costa quasi nulla.
+- 🐛 **Pulsante «Interrompi» riparato**: l'apostrofo nel messaggio di conferma francese rompeva il gestore e il pulsante non faceva nulla.
+- 🐛 **Bobina esterna**: il filamento del portabobina (o dell'AMS lite) torna a essere riportato sulle stampanti senza AMS e negli aggiornamenti parziali.
+- 🐛 **Avviso HMS con gravità sconosciuta**: ora viene mostrato invece di essere annunciato come «Nessuno» pur essendoci un messaggio.
+- 🔒 **Callback HTTPS**: il certificato viene verificato quando l'URL di ritorno punta fuori dalla rete locale (nessun cambiamento per un'installazione Jeedom classica).
+- 🧪 **Test automatizzati**: stati di stampa, decodifica degli errori BambuLab, AMS/filamenti e ciclo di aggiornamento del widget vengono verificati a ogni modifica.
+
 # 0.7.10 (beta)
 
 - ✨ **Aggiornamento del widget senza sfarfallio**: la scheda viene ridisegnata solo quando i dati cambiano davvero. Basta sfarfallio ricorrente quando la stampante è in pausa o nulla si muove; durante la stampa, gli aggiornamenti seguono comunque il ritmo dei cambiamenti.

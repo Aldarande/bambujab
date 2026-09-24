@@ -18,6 +18,7 @@
 # et jeedom_socket (descendant PHP->démon). Pas de pyserial/pyudev (inutiles
 # en LAN-only MQTT) pour limiter les dépendances.
 
+import ipaddress
 import time
 import logging
 import os
@@ -25,10 +26,37 @@ import unicodedata
 from threading import Thread
 from collections.abc import Mapping
 from queue import Queue
+from urllib.parse import urlparse
 import socketserver
 from socketserver import TCPServer, StreamRequestHandler
 
 import requests
+
+
+def _tls_verify(url):
+    """Faut-il vérifier le certificat TLS du callback Jeedom ?
+
+    Le template `jeedom_com` du core désactive la vérification en dur : la cible
+    est normalement le Jeedom local, souvent en HTTPS avec un certificat
+    auto-signé. Mais si l'utilisateur configure une URL de callback externe, ne
+    pas vérifier revient à exposer l'apikey à un intercepteur sans que rien ne le
+    signale. On ne relâche donc le contrôle que là où un certificat auto-signé est
+    attendu : boucle locale et adresses privées / lien-local.
+    """
+    try:
+        parsed = urlparse(url or '')
+    except Exception:
+        return True
+    if parsed.scheme != 'https':
+        return True          # HTTP : le paramètre est sans effet
+    host = parsed.hostname or ''
+    if host in ('localhost', 'localhost.localdomain'):
+        return False
+    try:
+        addr = ipaddress.ip_address(host)
+    except ValueError:
+        return True          # nom d'hôte public -> certificat vérifié
+    return not (addr.is_loopback or addr.is_private or addr.is_link_local)
 
 
 class jeedom_com():
@@ -38,6 +66,9 @@ class jeedom_com():
         self._cycle = cycle
         self._retry = retry
         self._changes = {}
+        self._verify = _tls_verify(url)
+        if not self._verify:
+            logging.info('jeedom.py: callback local en HTTPS -> certificat non vérifié')
         if self._cycle > 0:
             Thread(target=self.__thread_changes_async, daemon=True).start()
         logging.info('jeedom.py: init request module v%s', requests.__version__)
@@ -93,7 +124,7 @@ class jeedom_com():
         logging.debug('jeedom.py: send to jeedom: %s', change)
         for i in range(self._retry):
             try:
-                r = requests.post(self._url, json=change, headers=self._auth_headers(), timeout=(0.5, 120), verify=False)
+                r = requests.post(self._url, json=change, headers=self._auth_headers(), timeout=(0.5, 120), verify=self._verify)
                 if r.status_code == requests.codes.ok:
                     return True
                 logging.warning('jeedom.py: error on send request to jeedom, return code %s', r.status_code)
@@ -112,7 +143,7 @@ class jeedom_com():
 
     def test(self):
         try:
-            response = requests.get(self._url, headers=self._auth_headers(), verify=False)
+            response = requests.get(self._url, headers=self._auth_headers(), verify=self._verify)
             if response.status_code != requests.codes.ok:
                 logging.error('jeedom.py: callback error %s %s. Check Jeedom network configuration page',
                               response.status_code, response.reason)

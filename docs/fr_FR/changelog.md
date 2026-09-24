@@ -4,6 +4,15 @@
 >
 >S'il n'y a pas d'information sur la mise à jour, c'est qu'elle concerne uniquement de la documentation, une traduction ou du texte.
 
+# 0.7.11 (beta)
+
+- ⚡ **Tableau de bord bien plus léger** : le widget n'interroge plus le serveur quand l'onglet est en arrière-plan, espace ses relevés à 60 s lorsque l'imprimante est à l'arrêt (7 s pendant une impression), et ne demande désormais qu'une empreinte de l'état — la carte complète n'est retransmise que si quelque chose a réellement changé. Un tableau de bord laissé ouvert en permanence ne coûte quasiment plus rien.
+- 🐛 **Bouton « Arrêter » réparé** : l'apostrophe de « Arrêter l'impression ? » cassait la demande de confirmation et le bouton ne faisait rien.
+- 🐛 **Bobine externe** : le filament du support de bobine (ou de l'AMS lite) est de nouveau remonté sur les imprimantes sans AMS, et lors des mises à jour partielles.
+- 🐛 **Alerte HMS de gravité inconnue** : elle s'affiche désormais au lieu d'être annoncée comme « Aucune » alors qu'un message existait.
+- 🔒 **Callback HTTPS** : le certificat est vérifié lorsque l'URL de retour pointe hors du réseau local (aucun changement pour une installation Jeedom classique).
+- 🧪 **Tests automatisés** : décodage des états d'impression, des erreurs BambuLab, des AMS/filaments et boucle de rafraîchissement du widget, vérifiés à chaque modification.
+
 # 0.7.10 (beta)
 
 - ✨ **Rafraîchissement du widget sans clignotement** : la carte n'est redessinée que lorsque les données changent réellement. Fini le clignotement récurrent quand l'imprimante est en veille ou que rien ne bouge ; pendant l'impression, la mise à jour reste au rythme des changements.

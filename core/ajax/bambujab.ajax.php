@@ -26,6 +26,22 @@ try {
     ajax::success();
   }
 
+  if (init('action') === 'widgetSig') {
+    $eqLogic = bambujab::byId(init('id'));
+    if (!is_object($eqLogic)) {
+      throw new Exception(__('Équipement introuvable', __FILE__));
+    }
+    // Sondage du dashboard : md5 de l'état affiché + « impression en cours ».
+    // Le navigateur envoie la signature qu'il affiche ; si elle a bougé on joint
+    // le HTML à la même réponse, pour rester à une requête par tour de boucle
+    // (pendant une impression l'état change presque à chaque relevé).
+    $result = $eqLogic->widgetSignature();
+    if (init('sig') !== $result['sig']) {
+      $result['html'] = $eqLogic->toHtml('dashboard');
+    }
+    ajax::success($result);
+  }
+
   if (init('action') === 'widget') {
     $eqLogic = bambujab::byId(init('id'));
     if (!is_object($eqLogic)) {
