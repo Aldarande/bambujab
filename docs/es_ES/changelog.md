@@ -1,5 +1,10 @@
 # Changelog BambuJab
 
+# 0.7.12 (beta)
+
+- 🐛 **Widget utilizable en los diseños y en modo edición**: la tarjeta de la impresora es ahora una verdadera baldosa Jeedom. Se puede mover, redimensionar y eliminar en un diseño, redimensionar en el modo edición del panel, y se muestra en una zona «al pasar» o «al hacer clic» de un diseño con el tamaño definido en el panel, sin el error `Cannot read properties of null (reading 'offsetWidth')`. La tarjeta se adapta al tamaño de la baldosa.
+- 🐛 **Actualización automática del widget**: el script de actualización estaba bloqueado por Jeedom (error 403) y no se cargaba; ahora se sirve correctamente.
+
 # 0.7.11 (beta)
 
 - ⚡ **Panel mucho más ligero**: el widget ya no consulta al servidor cuando la pestaña está en segundo plano, espacia sus consultas a 60 s con la impresora en reposo (7 s durante la impresión) y ahora solo pide una huella del estado: la tarjeta completa se reenvía únicamente si algo ha cambiado de verdad. Un panel abierto todo el día ya casi no cuesta nada.

@@ -12,7 +12,7 @@ class bambujab extends eqLogic {
 
   const DAEMON_PORT_DEFAULT = 55152;
   const WIDGET_CSS_VERSION = '061'; // bump pour invalider le cache du CSS widget
-  const WIDGET_JS_VERSION  = '001'; // bump pour invalider le cache du JS widget
+  const WIDGET_JS_VERSION  = '002'; // bump pour invalider le cache du JS widget
   const ENC_PREFIX = 'enc:';        // marqueur des valeurs de config chiffrées au repos
 
   // Champs de configuration sensibles chiffrés en base (utils::encrypt).
@@ -809,6 +809,29 @@ class bambujab extends eqLogic {
     if ($this->getConfiguration('widget_type', 'custom') === 'standard') {
       return parent::toHtml($_version);
     }
+    // Conteneur standard Jeedom (.eqLogic-widget + data-eqLogic_id, taille #width#/#height#) :
+    // indispensable pour que le dashboard (mode édition), les designs (déplacer,
+    // redimensionner, supprimer) et les zones « survol / clic » trouvent la tuile.
+    // Sans lui, jeedomUtils.positionEqLogic() lit offsetWidth sur null.
+    $replace = $this->preToHtml($_version);
+    if (!is_array($replace)) {
+      return $replace;
+    }
+    // Largeur par défaut adaptée à la carte (le core impose 230px, trop étroit).
+    $dispW = trim((string)$this->getDisplay('width', ''));
+    $tileW = ($dispW === '' || $dispW === 'auto') ? '440px' : $replace['#width#'];
+    $tileH = trim((string)$replace['#height#']) === '' ? 'auto' : $replace['#height#'];
+    $tileAttrs = 'class="eqLogic eqLogic-widget allowResize jbb-eq ' . htmlspecialchars($replace['#class#']) . '"'
+      . ' data-eqType="' . htmlspecialchars($replace['#eqType#']) . '"'
+      . ' data-eqLogic_id="' . $replace['#id#'] . '"'
+      . ' data-eqLogic_uid="' . htmlspecialchars($replace['#uid#']) . '"'
+      . ' data-version="' . htmlspecialchars($replace['#version#']) . '"'
+      . ' data-translate-category="' . htmlspecialchars($replace['#translate_category#']) . '"'
+      . ' data-category="' . htmlspecialchars($replace['#category#']) . '"'
+      . ' data-tags="' . htmlspecialchars($replace['#tags#']) . '"'
+      . ' style="width:' . htmlspecialchars($tileW) . ';height:' . htmlspecialchars($tileH)
+      . ';padding:0;border:none;background:transparent;box-shadow:none;overflow:hidden;'
+      . htmlspecialchars($replace['#style#']) . '"';
     $state    = (string)$this->val('printer_state', '—');
     $stage    = (string)$this->val('stage', '');
     $progress = (float)$this->val('progress', 0);
@@ -930,9 +953,12 @@ class bambujab extends eqLogic {
     // complète est injectée dans <head> (persistante, hors du nœud re-swappé) depuis
     // le onload de l'<img> caché plus bas — garanti de s'exécuter, une seule fois.
 
+    // Le HTML doit commencer directement par la balise du conteneur : plan.js
+    // (zones survol/clic) prend childNodes[0] comme tuile insérée.
     ob_start(); ?>
-<div class="jbb-wrap" id="jbbW<?php echo $id; ?>" data-sig="<?php echo $sigData['sig']; ?>" style="width:100%;max-width:440px;margin:0 auto;box-sizing:border-box;">
-<div class="jbb-card" data-state="<?php echo htmlspecialchars($state); ?>" style="position:relative;box-sizing:border-box;width:100%;min-height:120px;border-radius:16px;padding:16px 18px;">
+<div <?php echo $tileAttrs; ?>>
+<div class="jbb-wrap" id="jbbW<?php echo $id; ?>" data-sig="<?php echo $sigData['sig']; ?>" style="width:100%;height:100%;max-width:none;margin:0;box-sizing:border-box;">
+<div class="jbb-card" data-state="<?php echo htmlspecialchars($state); ?>" style="position:relative;box-sizing:border-box;width:100%;height:100%;min-height:120px;border-radius:16px;padding:16px 18px;overflow:auto;">
   <div class="jbb-titlebar">
     <a class="jbb-name" href="index.php?v=d&p=bambujab&m=bambujab&id=<?php echo $id; ?>" title="<?php echo __('Ouvrir la configuration', __FILE__); ?>"><span class="jbb-conn <?php echo $connected === 1 ? 'jbb-conn-ok' : 'jbb-conn-ko'; ?>" title="<?php echo $connected === 1 ? __('Connecté à l\'imprimante', __FILE__) : __('Non connecté à l\'imprimante', __FILE__); ?>"></span><?php echo htmlspecialchars($this->getName()); ?></a>
     <span class="jbb-tools">
@@ -986,9 +1012,11 @@ class bambujab extends eqLogic {
   //   1. feuille de style posée dans <head> — persistante, hors du nœud re-swappé ;
   //   2. dédoublonnage des cartes laissées par gridStack (avant tout re-rendu) ;
   //   3. enregistrement auprès du moteur de rafraîchissement, chargé une seule
-  //      fois par page depuis desktop/js/bambujab.widget.js.
+  //      fois par page depuis desktop/js/bambujab.widget.js — via getResource.php :
+  //      le .htaccess de Jeedom renvoie 403 sur tout .js servi sous /desktop/.
   ?>
-<img alt="" style="display:none" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" onload="(function(){var id=<?php echo $id; ?>;var href='plugins/bambujab/desktop/css/bambujab.css?v=<?php echo self::WIDGET_CSS_VERSION; ?>';var css=document.getElementById('jbbCss');if(!css){css=document.createElement('link');css.id='jbbCss';css.rel='stylesheet';css.href=href;document.head.appendChild(css);}else if(css.getAttribute('href')!==href){css.setAttribute('href',href);}var all=document.querySelectorAll('#jbbW'+id);for(var k=1;k<all.length;k++){if(all[k].parentNode){all[k].parentNode.removeChild(all[k]);}}(window.jbbInit=window.jbbInit||[]).push([id,'<?php echo $sigData['sig']; ?>',<?php echo (int)$sigData['active']; ?>]);if(!document.getElementById('jbbJs')){var s=document.createElement('script');s.id='jbbJs';s.src='plugins/bambujab/desktop/js/bambujab.widget.js?v=<?php echo self::WIDGET_JS_VERSION; ?>';document.head.appendChild(s);}})();">
+<img alt="" style="display:none" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" onload="(function(){var id=<?php echo $id; ?>;var href='plugins/bambujab/desktop/css/bambujab.css?v=<?php echo self::WIDGET_CSS_VERSION; ?>';var css=document.getElementById('jbbCss');if(!css){css=document.createElement('link');css.id='jbbCss';css.rel='stylesheet';css.href=href;document.head.appendChild(css);}else if(css.getAttribute('href')!==href){css.setAttribute('href',href);}var all=document.querySelectorAll('.jbb-eq[data-eqLogic_id=&quot;'+id+'&quot;]');for(var k=1;k<all.length;k++){if(all[k].parentNode&&all[k].parentNode===all[0].parentNode){all[k].parentNode.removeChild(all[k]);}}(window.jbbInit=window.jbbInit||[]).push([id,'<?php echo $sigData['sig']; ?>',<?php echo (int)$sigData['active']; ?>]);if(!document.getElementById('jbbJs')){var s=document.createElement('script');s.id='jbbJs';s.src='core/php/getResource.php?file=plugins/bambujab/desktop/js/bambujab.widget.js&amp;v=<?php echo self::WIDGET_JS_VERSION; ?>';document.head.appendChild(s);}})();">
+</div>
 </div>
     <?php
     return ob_get_clean();

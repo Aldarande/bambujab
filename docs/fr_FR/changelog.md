@@ -4,6 +4,11 @@
 >
 >S'il n'y a pas d'information sur la mise à jour, c'est qu'elle concerne uniquement de la documentation, une traduction ou du texte.
 
+# 0.7.12 (beta)
+
+- 🐛 **Widget utilisable dans les designs et en mode édition** : la carte imprimante est désormais une vraie tuile Jeedom. Elle peut être déplacée, redimensionnée et supprimée dans un design, redimensionnée en mode édition du tableau de bord, et s'affiche dans une zone « survol » ou « clic » d'un design à la taille définie sur le tableau de bord — sans l'erreur `Cannot read properties of null (reading 'offsetWidth')`. La carte s'adapte à la taille de la tuile.
+- 🐛 **Rafraîchissement automatique du widget** : le script de rafraîchissement était bloqué par Jeedom (erreur 403) et ne se chargeait pas ; il est maintenant servi correctement.
+
 # 0.7.11 (beta)
 
 - ⚡ **Tableau de bord bien plus léger** : le widget n'interroge plus le serveur quand l'onglet est en arrière-plan, espace ses relevés à 60 s lorsque l'imprimante est à l'arrêt (7 s pendant une impression), et ne demande désormais qu'une empreinte de l'état — la carte complète n'est retransmise que si quelque chose a réellement changé. Un tableau de bord laissé ouvert en permanence ne coûte quasiment plus rien.

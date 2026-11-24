@@ -1,5 +1,10 @@
 # Changelog BambuJab
 
+# 0.7.12 (beta)
+
+- 🐛 **Widget utilizzabile nei design e in modalità modifica**: la scheda della stampante è ora una vera piastrella Jeedom. Può essere spostata, ridimensionata ed eliminata in un design, ridimensionata nella modalità modifica della dashboard, e appare in una zona «al passaggio» o «al clic» di un design con la dimensione definita sulla dashboard, senza l'errore `Cannot read properties of null (reading 'offsetWidth')`. La scheda si adatta alla dimensione della piastrella.
+- 🐛 **Aggiornamento automatico del widget**: lo script di aggiornamento era bloccato da Jeedom (errore 403) e non veniva caricato; ora viene servito correttamente.
+
 # 0.7.11 (beta)
 
 - ⚡ **Dashboard molto più leggera**: il widget non interroga più il server quando la scheda è in secondo piano, rallenta a 60 s con la stampante ferma (7 s durante la stampa) e ora chiede solo un'impronta dello stato: la scheda completa viene ritrasmessa solo se qualcosa è davvero cambiato. Una dashboard lasciata aperta tutto il giorno non costa quasi nulla.

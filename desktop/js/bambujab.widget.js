@@ -127,10 +127,13 @@
 
   Widget.prototype.apply = function (html) {
     var id = this.id;
-    // gridStack peut avoir laissé des copies de la carte : on ne garde que la première.
-    var dup = document.querySelectorAll('#jbbW' + id);
+    // gridStack peut avoir laissé des copies de la tuile dans le même conteneur :
+    // on ne garde que la première (une tuile affichée ailleurs, ex. zone de design, reste).
+    var dup = document.querySelectorAll('.jbb-eq[data-eqLogic_id="' + id + '"]');
     for (var j = 1; j < dup.length; j++) {
-      if (dup[j].parentNode) { dup[j].parentNode.removeChild(dup[j]); }
+      if (dup[j].parentNode && dup[j].parentNode === dup[0].parentNode) {
+        dup[j].parentNode.removeChild(dup[j]);
+      }
     }
     var w = node(id);
     if (!w) { return; }

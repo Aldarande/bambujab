@@ -4,6 +4,11 @@
 >
 >If there is no information about an update, it only concerns documentation, translation or text.
 
+# 0.7.12 (beta)
+
+- 🐛 **Widget usable in designs and edit mode**: the printer card is now a real Jeedom tile. It can be moved, resized and deleted in a design, resized in dashboard edit mode, and shows in a design “hover” or “click” zone at the size set on the dashboard — without the `Cannot read properties of null (reading 'offsetWidth')` error. The card adapts to the tile size.
+- 🐛 **Automatic widget refresh**: the refresh script was blocked by Jeedom (403 error) and never loaded; it is now served correctly.
+
 # 0.7.11 (beta)
 
 - ⚡ **Much lighter dashboard**: the widget no longer polls the server while the tab is in the background, slows down to 60 s when the printer is idle (7 s while printing), and now asks only for a fingerprint of the state — the full card is sent again only when something actually changed. A dashboard left open all day costs almost nothing.

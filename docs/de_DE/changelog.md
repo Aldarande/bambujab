@@ -1,5 +1,10 @@
 # BambuJab Changelog
 
+# 0.7.12 (beta)
+
+- 🐛 **Widget in Designs und im Bearbeitungsmodus nutzbar**: Die Druckerkarte ist jetzt eine echte Jeedom-Kachel. Sie lässt sich in einem Design verschieben, in der Größe ändern und löschen, im Bearbeitungsmodus des Dashboards in der Größe ändern und erscheint in einer „Hover“- oder „Klick“-Zone eines Designs in der auf dem Dashboard festgelegten Größe — ohne den Fehler `Cannot read properties of null (reading 'offsetWidth')`. Die Karte passt sich der Kachelgröße an.
+- 🐛 **Automatische Widget-Aktualisierung**: Das Aktualisierungsskript wurde von Jeedom blockiert (Fehler 403) und nie geladen; es wird jetzt korrekt ausgeliefert.
+
 # 0.7.11 (beta)
 
 - ⚡ **Deutlich leichteres Dashboard**: Das Widget fragt den Server nicht mehr ab, wenn der Tab im Hintergrund liegt, verlangsamt auf 60 s im Ruhezustand des Druckers (7 s während des Drucks) und fordert nur noch einen Fingerabdruck des Zustands an — die vollständige Karte wird nur übertragen, wenn sich wirklich etwas geändert hat. Ein dauerhaft geöffnetes Dashboard kostet fast nichts mehr.
